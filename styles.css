@@ -1,0 +1,806 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inknut Antiqua', serif;
+    line-height: 1.8;
+    color: #333;
+    
+    /* ⭐ IMAGEN DE FONDO */
+    background-image: url('https://www.clinicapremiumestetica.com/wp-content/uploads/2023/12/Armonizacion-Facial-Clinica-Premium-Estetica.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    
+    /* Color de respaldo si no hay imagen */
+    background-color: #f5f5f0;
+    
+    /* PADDINGS PARA HEADER Y FOOTER FIJOS */
+    padding-top: 60px;
+    padding-bottom: 50px;
+    
+    min-height: 100vh; 
+    display: flex;
+    flex-direction: column; 
+}
+
+/* --- HEADER FIJO --- */
+header {
+    background: #e0c00b74;
+    color: white;
+    padding: 0; 
+    text-align: center;
+    box-shadow: 0 4px 10px rgb(0, 0, 0);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 990;
+    display: flex; 
+    flex-direction: column;
+}
+
+.header-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    padding: 0 20px;
+    position: relative;
+    width: 100%;
+}
+
+header h1 {
+    font-family: 'Inknut Antiqua', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 
+        1px 1px 1px rgb(0, 0, 0);
+    color: white; 
+    margin: 0;
+    transition: all 0.3s ease;
+}
+
+/* Botón Volver en Header */
+.btn-volver {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0);
+    color: rgb(255, 255, 255);
+    border: 2px solid rgb(255, 255, 255);
+    padding: 6px 12px;
+    border-radius: 25px;
+    font-family: 'Inknut Antiqua', serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: none;
+    z-index: 999;
+}
+
+.btn-volver.visible {
+    display: block;
+}
+
+.btn-volver:hover {
+    background: rgba(0, 0, 0, 0.449);
+    color: #ffffff;
+    transform: translateY(-50%) translateX(-3px);
+}
+
+.btn-volver:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* --- MENÚ HAMBURGUESA --- */
+.hamburger-menu {
+    display: none;
+}
+
+.hamburger-icon-new {
+    position: absolute;
+    right: 20px;
+    width: 35px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5px;
+    background: #D4AF37;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.hamburger-icon-new:hover {
+    background: #B8860B;
+}
+
+.hamburger-icon-new span {
+    display: block;
+    height: 3px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.hamburger-icon-new.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger-icon-new.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-icon-new.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(8px, -8px);
+}
+
+/* Posicionamiento del menú desplegable */
+.menu-nav {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 999;
+    min-width: 200px;
+}
+
+.menu-nav.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.menu-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-nav ul li {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.menu-nav ul li:last-child {
+    border-bottom: none;
+}
+
+.menu-nav ul li a {
+    display: block;
+    padding: 15px 30px;
+    color: #333;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: 'Inknut Antiqua', serif;
+}
+
+.menu-nav ul li a:hover {
+    background: #D4AF37;
+    color: white;
+}
+
+.menu-nav ul li a.hidden {
+    display: none;
+}
+
+/* --- BOTÓN WHATSAPP FLOTANTE --- */
+.whatsapp-flotante {
+    position: fixed;
+    bottom: 60px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+    transition: all 0.3s ease;
+    z-index: 998;
+    text-decoration: none;
+}
+
+.whatsapp-flotante:hover {
+    background: #128C7E;
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
+}
+
+.whatsapp-flotante .whatsapp-icon {
+    font-size: 2rem;
+}
+
+/* --- MODAL GENERAL --- */
+.modal {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    margin: auto;
+}
+
+.modal-content h2 {
+    font-family: 'Inknut Antiqua', serif;
+    color: #D4AF37;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 1rem;
+    border: 2px solid #D4AF37;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Inknut Antiqua', serif;
+}
+
+.modal-content button {
+    width: 100%;
+    padding: 15px;
+    background: #D4AF37;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-family: 'Inknut Antiqua', serif;
+    margin-bottom: 0.5rem;
+}
+
+.modal-content button:hover {
+    background: #B8860B;
+}
+
+.modal-content .btn-ingresar {
+    background: #D4AF37;
+    margin-bottom: 0.8rem;
+}
+
+.modal-content .btn-ingresar:hover {
+    background: #B8860B;
+}
+
+.modal-content .btn-cancelar-login {
+    background: #95a5a6;
+    margin-bottom: 0;
+}
+
+.modal-content .btn-cancelar-login:hover {
+    background: #7f8c8d;
+}
+
+.error-msg {
+    color: #e74c3c;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+/* --- MODAL PRODUCTO (Agregar/Editar) --- */
+.modal-producto {
+    max-width: 500px;
+    width: 100%;
+    text-align: left;
+    padding: 2rem;
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.8rem;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 10;
+    line-height: 1;
+}
+
+.close-modal:hover {
+    color: #D4AF37;
+}
+
+.modal-producto label {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.modal-producto input[type="text"],
+.modal-producto textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Inknut Antiqua', serif;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.modal-producto textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.modal-producto input[type="text"]:focus,
+.modal-producto textarea:focus {
+    outline: none;
+    border-color: #D4AF37;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.5rem;
+}
+
+.btn-guardar,
+.btn-cancelar {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inknut Antiqua', serif;
+}
+
+.btn-guardar {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-guardar:hover {
+    background: #229954;
+}
+
+.btn-cancelar {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-cancelar:hover {
+    background: #7f8c8d;
+}
+
+/* Estilos para subida de imágenes */
+.file-input-container {
+    margin-bottom: 1rem;
+}
+
+.file-input-label {
+    display: block;
+    padding: 20px;
+    background: #f8f9fa;
+    border: 2px dashed #D4AF37;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+    font-weight: 600;
+}
+
+.file-input-label:hover {
+    background: #D4AF37;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.file-input-label.has-image {
+    background: #e8f5e8;
+    border-color: #27ae60;
+    color: #27ae60;
+}
+
+.image-preview {
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    object-fit: cover;
+}
+
+/* --- PRODUCTOS/CATEGORÍAS (CATÁLOGO) --- */
+.productos {
+    max-width: 1200px;
+    margin: 20px auto 4rem auto;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+    gap: 15px;
+    flex-grow: 1;
+    /* ⭐ CLAVE: Evita que las filas se estiren */
+    grid-auto-rows: min-content;
+    align-content: start;
+}
+
+/* ⭐ CORRECCIÓN PRINCIPAL: Evitar estiramiento de tarjetas */
+.producto {
+    background: #D4AF37;
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    
+    /* NUEVO: Flexbox para controlar el layout interno */
+    display: flex;
+    flex-direction: column;
+    
+    /* ⭐ CLAVE: Altura máxima fija para evitar estiramiento */
+    max-height: fit-content;
+    height: auto;
+}
+
+.producto:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.8);
+}
+
+/* ⭐ CORRECCIÓN: Altura fija para la imagen */
+.producto-img {
+    width: 100%;
+    height: 250px;
+    min-height: 250px;
+    max-height: 250px; /* ← CLAVE: Evita que se estire */
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    border-radius: 5px;
+    flex-shrink: 0; /* No permite que se encoja */
+}
+
+.producto-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Mantiene proporción sin deformar */
+    object-position: center;
+    padding: 0;
+}
+
+.producto-info {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    text-align: center;
+    padding: 5px 15px;
+    background: white;
+    border: 2px solid #333;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    min-width: 80%;
+    max-width: 90%;
+    width: auto;
+}
+
+.producto-info h3 {
+    font-family: 'Inknut Antiqua', serif;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 900;
+    margin: 0;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Agrega "..." si es muy largo */
+}
+
+.producto-info p {
+    display: none;
+}
+
+/* ⭐ CORRECCIÓN: Los botones no deben estirar la tarjeta */
+.producto-actions {
+    padding: 10px 8px 5px 8px; /* Padding uniforme */
+    display: none;
+    gap: 8px;
+    flex-shrink: 0; /* No permite que se encoja */
+    margin-top: auto; /* Empuja hacia abajo si hay espacio */
+}
+
+.producto-actions.visible {
+    display: flex;
+}
+
+.btn-editar,
+.btn-eliminar {
+    flex: 1;
+    padding: 8px 5px; /* Reducido para que no estire */
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem; /* Ligeramente más pequeño */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inknut Antiqua', serif;
+    white-space: nowrap; /* Evita saltos de línea */
+}
+
+.btn-editar {
+    background: #3498db;
+    color: white;
+}
+
+.btn-editar:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.btn-eliminar {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-eliminar:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+}
+
+/* --- BOTÓN FLOTANTE AGREGAR --- */
+.btn-agregar-flotante {
+    position: fixed;
+    bottom: 120px;
+    right: 30px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 18px 25px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+    transition: all 0.3s ease;
+    z-index: 998;
+    display: none;
+    font-family: 'Inknut Antiqua', serif;
+}
+
+.btn-agregar-flotante.visible {
+    display: block;
+}
+
+.btn-agregar-flotante:hover {
+    background: #229954;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5);
+}
+
+/* Botón para agregar items dentro de categoría */
+.btn-agregar-item {
+    position: fixed;
+    bottom: 120px;
+    right: 30px;
+    background: #9b59b6;
+    color: white;
+    border: none;
+    padding: 18px 25px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+    transition: all 0.3s ease;
+    z-index: 998;
+    display: none;
+    font-family: 'Inknut Antiqua', serif;
+}
+
+.btn-agregar-item.visible {
+    display: block;
+}
+
+.btn-agregar-item:hover {
+    background: #8e44ad;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(155, 89, 182, 0.5);
+}
+
+/* --- FOOTER FIJO --- */
+footer {
+    background: #ffc40048;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    padding: 0.5rem 0;
+    
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 990; 
+    margin: 0;
+    box-shadow: 0 -4px 10px rgb(0, 0, 0);
+    font-family: 'Inknut Antiqua', serif;
+}
+
+/* --- RESPONSIVIDAD --- */
+@media (max-width: 768px) {
+    body {
+        padding-top: 60px;
+        padding-bottom: 50px;
+    }
+    
+    .header-content {
+        height: 60px;
+    }
+    
+    header h1 {
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+    }
+
+    .btn-volver {
+        left: 10px;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+
+    .hamburger-icon-new {
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 28px;
+    }
+    
+    .menu-nav {
+        top: 60px;
+        right: 15px;
+    }
+
+    .productos {
+        grid-template-columns: 1fr 1fr;
+        margin: 10px auto 2rem auto;
+        padding: 0 10px;
+        gap: 10px;
+    }
+
+    /* Imagen en móvil */
+    .producto-img {
+        height: 180px;
+        min-height: 180px;
+        max-height: 180px;
+    }
+    
+    .producto-info {
+        padding: 5px 10px;
+        min-width: 90%;
+    }
+
+    .producto-info h3 {
+        font-size: 0.8rem;
+    }
+
+    /* Descripción en móvil */
+    .producto-descripcion {
+        padding: 10px 8px;
+        font-size: 0.75rem;
+        min-height: 45px;
+    }
+
+    /* Botones más pequeños en móvil */
+    .btn-editar,
+    .btn-eliminar {
+        padding: 6px 4px;
+        font-size: 0.75rem;
+    }
+    
+    .whatsapp-flotante {
+        bottom: 70px;
+        right: 20px;
+        width: 55px;
+        height: 55px;
+    }
+    
+    .btn-agregar-flotante,
+    .btn-agregar-item {
+        bottom: 130px;
+        right: 20px;
+        padding: 12px 18px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .productos {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+    }
+}
+
+@media (min-width: 1025px) {
+    .productos {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    header h1 {
+        font-size: 2rem;
+    }
+}
+
+/* --- Animaciones --- */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}

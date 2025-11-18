@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dermobotanics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Modal Login -->
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="cerrarModalLogin()">&times;</span>
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <input type="password" id="password" placeholder="Ingrese la clave" required>
+                <button type="submit" class="btn-ingresar">Ingresar</button>
+                <button type="button" class="btn-cancelar-login" onclick="cerrarModalLogin()">Cancelar</button>
+                <p id="errorMsg" class="error-msg"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <button class="btn-volver" id="btnVolverCategorias">
+                ← Volver
+            </button>
+            
+            <div class="hamburger-icon-new" id="hamburgerIcon">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <h1>DERMOBOTICS</h1>
+        </div>
+        
+        <nav class="menu-nav" id="menuNav">
+            <ul>
+                <li><a href="#" id="btnIniciar">Iniciar Sesión</a></li>
+                <li><a href="#" id="btnCerrar">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Contenedor de Productos/Categorías -->
+    <section class="productos" id="productosContainer">
+    </section>
+
+    <!-- Botón Flotante Agregar Categoría -->
+    <button class="btn-agregar-flotante" id="btnAgregarFlotante" onclick="abrirModalAgregar()">
+        ➕ Agregar Categoría
+    </button>
+
+    <!-- Botón WhatsApp -->
+    <a href="https://wa.me/593959602727?text=Hola,%20estoy%20interesado%20en%20sus%20productos" 
+        class="whatsapp-flotante" target="_blank">
+        <span class="whatsapp-icon">💬</span>
+    </a>
+
+    <!-- Modal Categoría -->
+    <div id="modalCategoria" class="modal hidden">
+        <div class="modal-content modal-producto">
+            <span class="close-modal" onclick="cerrarModalCategoria()">&times;</span>
+            <h2 id="tituloModalCategoria">Agregar Categoría</h2>
+            <form id="formCategoria">
+                <input type="hidden" id="categoriaId">
+                
+                <div class="file-input-container">
+                    <label for="categoriaImagen" class="file-input-label" id="fileInputLabelCategoria">
+                        📸 Seleccionar Imagen
+                    </label>
+                    <input type="file" id="categoriaImagen" accept="image/*" style="display: none;">
+                    <div class="image-preview" id="imagePreviewCategoria" style="display: none;">
+                        <img id="previewImageCategoria" src="#" alt="Vista previa">
+                    </div>
+                </div>
+                
+                <label>Nombre de la Categoría:</label>
+                <input type="text" id="categoriaNombre" placeholder="Ej: Cremas Faciales" required>
+                
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-guardar">💾 Guardar</button>
+                    <button type="button" class="btn-cancelar" onclick="cerrarModalCategoria()">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Item/Producto -->
+    <div id="modalItem" class="modal hidden">
+        <div class="modal-content modal-producto">
+            <span class="close-modal" onclick="cerrarModalItem()">&times;</span>
+            <h2 id="tituloModalItem">Agregar Producto</h2>
+            <form id="formItem">
+                <input type="hidden" id="itemId">
+                <input type="hidden" id="itemCategoriaId">
+                
+                <div class="file-input-container">
+                    <label for="itemImagen" class="file-input-label" id="fileInputLabelItem">
+                        📸 Seleccionar Imagen
+                    </label>
+                    <input type="file" id="itemImagen" accept="image/*" style="display: none;">
+                    <div class="image-preview" id="imagePreviewItem" style="display: none;">
+                        <img id="previewImageItem" src="#" alt="Vista previa">
+                    </div>
+                </div>
+                
+                <label>Nombre del Producto:</label>
+                <input type="text" id="itemNombre" placeholder="Nombre del producto" required>
+                
+                <label>Descripción:</label>
+                <textarea id="itemDescripcion" placeholder="Escribe la descripción del producto aquí..." rows="4"></textarea>
+                
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-guardar">💾 Guardar</button>
+                    <button type="button" class="btn-cancelar" onclick="cerrarModalItem()">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Dermobotanics.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

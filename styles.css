@@ -10,7 +10,7 @@ body {
     color: #333;
     
     /* ⭐ IMAGEN DE FONDO */
-    background-image: url('https://www.clinicapremiumestetica.com/wp-content/uploads/2023/12/Armonizacion-Facial-Clinica-Premium-Estetica.jpg');
+    background-image: url('fondo.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

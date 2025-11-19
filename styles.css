@@ -10,7 +10,7 @@ body {
     color: #333;
     
     /* ⭐ IMAGEN DE FONDO */
-    background-image: url('fondo.png');
+    background-image: url('fondo1.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -30,11 +30,11 @@ body {
 
 /* --- HEADER FIJO --- */
 header {
-    background:  #e0c00b95;
-    color: white;
+    background: #fcfcfc43;
+    color: rgba(255, 255, 255, 0);
     padding: 0; 
     text-align: center;
-    box-shadow: 0 4px 10px rgb(0, 0, 0);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.381);
     position: fixed;
     top: 0;
     left: 0;
@@ -61,8 +61,8 @@ header h1 {
     letter-spacing: 2px;
     text-transform: uppercase;
     text-shadow: 
-        1px 1px 1px rgb(0, 0, 0);
-    color: white; 
+        1px 1px 1px rgba(255, 255, 255, 0);
+    color: rgb(0, 0, 0); 
     margin: 0;
     transition: all 0.3s ease;
 }
@@ -73,7 +73,7 @@ header h1 {
     left: 20px;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0);
+    background: #D4AF37;
     color: rgb(255, 255, 255);
     border: 2px solid rgb(255, 255, 255);
     padding: 6px 12px;
@@ -92,7 +92,7 @@ header h1 {
 }
 
 .btn-volver:hover {
-    background: rgba(0, 0, 0, 0.449);
+    background: rgba(0, 0, 0, 0.584);
     color: #ffffff;
     transform: translateY(-50%) translateX(-3px);
 }
@@ -663,9 +663,9 @@ header h1 {
     box-shadow: 0 8px 25px rgba(155, 89, 182, 0.5);
 }
 
-/* --- FOOTER FIJO --- */
+/* ---------------------------------- FOOTER FIJO  ----------------- */
 footer {
-    background:  #e0c00b95;
+    background:  #fcfcfc43;
     color: rgb(0, 0, 0);
     text-align: center;
     padding: 0.5rem 0;
@@ -676,8 +676,8 @@ footer {
     width: 100%;
     z-index: 990; 
     margin: 0;
-    box-shadow: 0 -4px 10px rgb(0, 0, 0);
-    font-family: 'Inknut Antiqua', serif;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.316);
+    font-family: '', serif;
 }
 
 /* --- RESPONSIVIDAD --- */

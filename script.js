@@ -329,7 +329,7 @@ function renderizarCategorias(categorias) {
     productosContainer.innerHTML = '';
     
     if (categorias.length === 0) {
-        productosContainer.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #666; font-size: 1.2rem;">No hay categorías disponibles</p>';
+        productosContainer.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #000000ff; font-size: 1.2rem;">No hay categorías disponibles</p>';
         return;
     }
     
@@ -368,7 +368,7 @@ function renderizarItems(items) {
     productosContainer.innerHTML = '';
     
     if (items.length === 0) {
-        productosContainer.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #666; font-size: 1.2rem;">No hay productos en esta categoría</p>';
+        productosContainer.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #000000ff; font-size: 1.2rem;">No hay productos en esta categoría</p>';
         return;
     }
     

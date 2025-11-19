@@ -30,7 +30,7 @@ body {
 
 /* --- HEADER FIJO --- */
 header {
-    background: #e0c00b74;
+    background:  #e0c00b95;
     color: white;
     padding: 0; 
     text-align: center;
@@ -665,7 +665,7 @@ header h1 {
 
 /* --- FOOTER FIJO --- */
 footer {
-    background: #ffc40048;
+    background:  #e0c00b95;
     color: rgb(0, 0, 0);
     text-align: center;
     padding: 0.5rem 0;

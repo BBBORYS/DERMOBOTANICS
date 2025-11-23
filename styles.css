@@ -28,9 +28,9 @@ body {
     flex-direction: column; 
 }
 
-/* --- HEADER FIJO --- */
+/* --- HEADER FIJO          -------------------------------- */
 header {
-    background: #fcfcfcc3;
+    background: #ffffffbd;
     color: rgba(255, 255, 255, 0);
     padding: 0; 
     text-align: center;
@@ -199,6 +199,145 @@ header h1 {
 
 .menu-nav ul li a.hidden {
     display: none;
+}
+
+/* ========================================
+   SECCIÓN HERO PUBLICITARIA
+   ======================================== */
+.hero-section {
+    background: linear-gradient(135deg, #f5f5f0 0%, #fff9e6 100%);
+    padding: 30px 20px;
+    margin: 20px auto;
+    max-width: 1200px;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.3);
+    position: relative;
+    overflow: hidden;
+    animation: fadeInHero 0.6s ease;
+}
+
+.hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+}
+
+.hero-text h2 {
+    font-family: 'Inknut Antiqua', serif;
+    color: #D4AF37;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.hero-subtitle {
+    color: #666;
+    font-size: 1.3rem;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+.hero-description {
+    color: #333;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 25px;
+}
+
+.hero-features {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    color: #333;
+    transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+}
+
+.feature-icon {
+    font-size: 1.5rem;
+}
+
+.hero-image {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    height: 400px;
+}
+
+.hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.hero-image:hover img {
+    transform: scale(1.05);
+}
+
+.hero-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.hero-close:hover {
+    background: #D4AF37;
+    transform: rotate(90deg);
+}
+
+@keyframes fadeInHero {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOutHero {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
 }
 
 /* --- BOTÓN WHATSAPP FLOTANTE --- */
@@ -556,6 +695,32 @@ header h1 {
     display: none;
 }
 
+/* ⭐ NUEVA SECCIÓN: Descripción del producto */
+.producto-descripcion {
+    padding: 10px 8px;
+    background: white;
+    border-radius: 5px;
+    margin: 5px 0;
+    flex-shrink: 0;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.producto-descripcion p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #333;
+    margin: 0;
+    text-align: center;
+}
+
+.producto-descripcion p.sin-descripcion {
+    color: #999;
+    font-style: italic;
+}
+
 /* ⭐ CORRECCIÓN: Los botones no deben estirar la tarjeta */
 .producto-actions {
     padding: 10px 8px 5px 8px; /* Padding uniforme */
@@ -665,7 +830,7 @@ header h1 {
 
 /* ---------------------------------- FOOTER FIJO  ----------------- */
 footer {
-    background: #fcfcfcc3;
+    background:  #ffffffbd;
     color: rgb(0, 0, 0);
     text-align: center;
     padding: 0.5rem 0;
@@ -713,6 +878,43 @@ footer {
     .menu-nav {
         top: 60px;
         right: 15px;
+    }
+
+    /* Hero Section en móvil */
+    .hero-section {
+        padding: 20px 15px;
+        margin: 10px 10px 20px 10px;
+        border-radius: 15px;
+    }
+
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .hero-text h2 {
+        font-size: 1.8rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .hero-features {
+        gap: 10px;
+    }
+
+    .feature-item {
+        font-size: 0.9rem;
+        padding: 8px 15px;
+    }
+
+    .hero-image {
+        height: 250px;
     }
 
     .productos {
@@ -776,6 +978,14 @@ footer {
 
     header h1 {
         font-size: 1.8rem;
+    }
+
+    .hero-text h2 {
+        font-size: 2.2rem;
+    }
+
+    .hero-image {
+        height: 350px;
     }
 }
 

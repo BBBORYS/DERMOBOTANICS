@@ -50,37 +50,43 @@
     </header>
 
     <!-- Sección Hero/Publicitaria -->
-<section class="hero-section" id="heroSection">
-    <div class="hero-content">
-        <div class="hero-text">
-            <h2>Bienvenido a Dermobotanics</h2>
-            <p class="hero-subtitle">Productos Naturales para tu Belleza y Bienestar</p>
-            <p class="hero-description">
-                Descubre nuestra exclusiva línea de productos dermocosméticos elaborados 
-                con ingredientes botánicos de la más alta calidad. Cuidamos tu piel de 
-                forma natural, respetando su equilibrio y realzando tu belleza.
-            </p>
-            <div class="hero-features">
-                <div class="feature-item">
-                    <span class="feature-icon">🌿</span>
-                    <span>100% Natural</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">✨</span>
-                    <span>Calidad Premium</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">🧪</span>
-                    <span>Dermatológicamente Probado</span>
+    <section class="hero-section mostrar-hero" id="heroSection">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h2>Bienvenido a Dermobotanics</h2>
+                <p class="hero-subtitle">Productos Naturales para tu Belleza y Bienestar</p>
+                <p class="hero-description">
+                    Descubre nuestra exclusiva línea de productos dermocosméticos elaborados 
+                    con ingredientes botánicos de la más alta calidad. Cuidamos tu piel de 
+                    forma natural, respetando su equilibrio y realzando tu belleza.
+                </p>
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">🌿</span>
+                        <span>100% Natural</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✨</span>
+                        <span>Calidad Premium</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🧪</span>
+                        <span>Dermatológicamente Probado</span>
+                    </div>
                 </div>
             </div>
+            <div class="hero-image">
+                <img src="hero-dermobotanics.jpg" alt="Productos Dermobotanics" 
+                     onerror="this.src='https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&h=400&fit=crop'">
+            </div>
         </div>
-        <div class="hero-image">
-            <img src="hero-dermobotanics.jpg" alt="Productos Dermobotanics" 
-                 onerror="this.src='https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&h=400&fit=crop'">
-        </div>
+    </section>
+
+    <!-- Título de Sección -->
+    <div class="titulo-seccion" id="tituloSeccion">
+        <h2>Nuestros Productos</h2>
+        <div class="titulo-linea"></div>
     </div>
-</section>
 
     <!-- Contenedor de Productos/Categorías -->
     <section class="productos" id="productosContainer">
@@ -168,227 +174,274 @@
     
     <!-- CSS adicional para la sección Hero -->
     <style>
-.hero-section {
-    background: linear-gradient(135deg, #f5f5f0 0%, #fff9e6 100%);
-    padding: 30px 20px;
-    margin: 20px auto;
-    max-width: 1200px;
-    border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.3);
-    position: relative;
-    overflow: hidden;
-    animation: fadeInHero 0.6s ease;
-}
-
-.hero-section.hidden {
-    display: none;
-}
-
-.hero-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    align-items: center;
-}
-
-.hero-text h2 {
-    font-family: 'Inknut Antiqua', serif;
-    color: #D4AF37;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.hero-subtitle {
-    color: #666;
-    font-size: 1.3rem;
-    font-style: italic;
-    margin-bottom: 20px;
-}
-
-.hero-description {
-    color: #333;
-    font-size: 1.1rem;
-    line-height: 1.8;
-    margin-bottom: 25px;
-}
-
-.hero-features {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.feature-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: white;
-    padding: 10px 20px;
-    border-radius: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    font-weight: 600;
-    color: #333;
-    transition: transform 0.3s ease;
-}
-
-.feature-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
-}
-
-.feature-icon {
-    font-size: 1.5rem;
-}
-
-.hero-image {
-    position: relative;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    height: 400px;
-}
-
-.hero-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-}
-
-.hero-image:hover img {
-    transform: scale(1.05);
-}
-
-.hero-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    transition: all 0.3s ease;
-    z-index: 10;
-}
-
-.hero-close:hover {
-    background: #D4AF37;
-    transform: rotate(90deg);
-}
-
-@keyframes fadeInHero {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsividad */
-@media (max-width: 768px) {
     .hero-section {
-        padding: 20px 15px;
-        margin: 10px 10px 20px 10px;
-        border-radius: 15px;
+        background: linear-gradient(135deg, #f5f5f0 0%, #fff9e6 100%);
+        padding: 30px 20px;
+        margin: 20px auto;
+        max-width: 1200px;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(212, 175, 55, 0.3);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInHero 0.6s ease;
+        display: none;
+    }
+
+    .hero-section.mostrar-hero {
+        display: block;
     }
 
     .hero-content {
-        grid-template-columns: 1fr;
-        gap: 25px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: center;
     }
 
     .hero-text h2 {
-        font-size: 1.8rem;
+        font-family: 'Inknut Antiqua', serif;
+        color: #D4AF37;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
     }
 
     .hero-subtitle {
-        font-size: 1.1rem;
+        color: #666;
+        font-size: 1.3rem;
+        font-style: italic;
+        margin-bottom: 20px;
     }
 
     .hero-description {
-        font-size: 1rem;
+        color: #333;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 25px;
     }
 
     .hero-features {
-        gap: 10px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
     }
 
     .feature-item {
-        font-size: 0.9rem;
-        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        font-weight: 600;
+        color: #333;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+    }
+
+    .feature-icon {
+        font-size: 1.5rem;
     }
 
     .hero-image {
-        height: 250px;
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        height: 400px;
     }
 
-    .hero-close {
-        width: 30px;
-        height: 30px;
-        font-size: 1.1rem;
-    }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .hero-text h2 {
-        font-size: 2.2rem;
+    .hero-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
     }
 
-    .hero-image {
-        height: 350px;
+    .hero-image:hover img {
+        transform: scale(1.05);
     }
-}
-</style>
 
-<!-- JavaScript para cerrar el Hero -->
-<script>
-function cerrarHero() {
-    const heroSection = document.getElementById('heroSection');
-    heroSection.style.animation = 'fadeOutHero 0.4s ease';
-    setTimeout(() => {
-        heroSection.classList.add('hidden');
-        // Guardar en localStorage que el usuario cerró el hero
-        localStorage.setItem('heroVisible', 'false');
-    }, 400);
-}
-
-// Agregar animación de salida
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes fadeOutHero {
+    @keyframes fadeInHero {
         from {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        to {
             opacity: 0;
             transform: translateY(-20px);
         }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-`;
-document.head.appendChild(style);
 
-// Verificar si el usuario ya cerró el hero anteriormente
-window.addEventListener('DOMContentLoaded', () => {
-    const heroVisible = localStorage.getItem('heroVisible');
-    if (heroVisible === 'false') {
-        document.getElementById('heroSection').classList.add('hidden');
+    /* Estilos para el Título de Sección */
+    .titulo-seccion {
+        text-align: center;
+        margin: 30px auto 20px;
+        max-width: 1200px;
+        padding: 0 20px;
+        animation: fadeInTitle 0.8s ease;
     }
-});
-</script>
+
+    .titulo-seccion h2 {
+        font-family: 'Bradley Hand ITC', serif;
+        font-size: 3rem;
+        font-weight: 900;
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 4px rgb(0, 0, 0);
+        position: relative;
+        display: inline-block;
+    }
+
+    .titulo-linea {
+        width: 150px;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #ffffff, transparent);
+        margin: 0 auto;
+        border-radius: 2px;
+        animation: expandLine 1s ease;
+    }
+
+    @keyframes fadeInTitle {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes expandLine {
+        from {
+            width: 0;
+        }
+        to {
+            width: 150px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 20px 15px;
+            margin: 10px 10px 20px 10px;
+            border-radius: 15px;
+        }
+
+        .hero-content {
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .hero-text h2 {
+            font-size: 1.8rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+
+        .hero-description {
+            font-size: 1rem;
+        }
+
+        .hero-features {
+            gap: 10px;
+        }
+
+        .feature-item {
+            font-size: 0.9rem;
+            padding: 8px 15px;
+        }
+
+        .hero-image {
+            height: 250px;
+        }
+
+        .titulo-seccion h2 {
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .titulo-linea {
+            width: 100px;
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .hero-text h2 {
+            font-size: 2.2rem;
+        }
+
+        .hero-image {
+            height: 350px;
+        }
+
+        .titulo-seccion h2 {
+            font-size: 2.5rem;
+        }
+
+        .titulo-linea {
+            width: 130px;
+        }
+    }
+    </style>
+    
+    <script>
+    // Script para ocultar/mostrar hero según la vista
+    function actualizarVisibilidadHero() {
+        const heroSection = document.getElementById('heroSection');
+        const tituloSeccion = document.getElementById('tituloSeccion');
+        const btnVolver = document.getElementById('btnVolverCategorias');
+        
+        // Si el botón "Volver" está visible, estamos en vista de items
+        if (btnVolver && btnVolver.classList.contains('visible')) {
+            heroSection.classList.remove('mostrar-hero');
+            // Cambiar el texto cuando estamos en productos de una categoría
+            if (tituloSeccion) {
+                const h2 = tituloSeccion.querySelector('h2');
+                if (h2) h2.textContent = 'Productos';
+            }
+        } else {
+            heroSection.classList.add('mostrar-hero');
+            // Restaurar el texto original en vista de categorías
+            if (tituloSeccion) {
+                const h2 = tituloSeccion.querySelector('h2');
+                if (h2) h2.textContent = 'Nuestros Productos';
+            }
+        }
+    }
+    
+    // Observar cambios en el botón volver
+    window.addEventListener('DOMContentLoaded', () => {
+        const btnVolver = document.getElementById('btnVolverCategorias');
+        
+        if (btnVolver) {
+            // Crear un observer para detectar cambios de clase
+            const observer = new MutationObserver(() => {
+                actualizarVisibilidadHero();
+            });
+            
+            observer.observe(btnVolver, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+            
+            // Verificar estado inicial
+            actualizarVisibilidadHero();
+        }
+    });
+    </script>
 
 </body>
 </html>

@@ -22,49 +22,78 @@ const menuNav = document.getElementById('menuNav');
 const btnIniciar = document.getElementById('btnIniciar');
 const btnCerrar = document.getElementById('btnCerrar');
 const btnVolverCategorias = document.getElementById('btnVolverCategorias');
+const btnVolverMarcas = document.getElementById('btnVolverMarcas');
 const btnAgregarFlotante = document.getElementById('btnAgregarFlotante');
+const btnAgregarCategoria = document.getElementById('btnAgregarCategoria');
+const btnAgregarItem = document.getElementById('btnAgregarItem');
+const buscadorInput = document.getElementById('buscadorInput');
+const btnBuscar = document.getElementById('btnBuscar');
+const tituloDinamico = document.getElementById('tituloDinamico');
 
-// Modales Categoría
+// Modales
+const modalMarca = document.getElementById('modalMarca');
+const formMarca = document.getElementById('formMarca');
 const modalCategoria = document.getElementById('modalCategoria');
 const formCategoria = document.getElementById('formCategoria');
+const modalItem = document.getElementById('modalItem');
+const formItem = document.getElementById('formItem');
+
+// Previews de imágenes
+const imagePreviewMarca = document.getElementById('imagePreviewMarca');
+const previewImageMarca = document.getElementById('previewImageMarca');
+const fileInputLabelMarca = document.getElementById('fileInputLabelMarca');
 const imagePreviewCategoria = document.getElementById('imagePreviewCategoria');
 const previewImageCategoria = document.getElementById('previewImageCategoria');
 const fileInputLabelCategoria = document.getElementById('fileInputLabelCategoria');
-
-// Modales Item
-const modalItem = document.getElementById('modalItem');
-const formItem = document.getElementById('formItem');
 const imagePreviewItem = document.getElementById('imagePreviewItem');
 const previewImageItem = document.getElementById('previewImageItem');
 const fileInputLabelItem = document.getElementById('fileInputLabelItem');
+
+// Elementos de precio y descuento
+const itemPrecioNormal = document.getElementById('itemPrecioNormal');
+const itemPrecioDescuento = document.getElementById('itemPrecioDescuento');
+const descuentoInfo = document.getElementById('descuentoInfo');
+const porcentajeDescuento = document.getElementById('porcentajeDescuento');
+const ahorroTexto = document.getElementById('ahorroTexto');
 
 // ========================================
 // ESTADO DE LA APLICACIÓN
 // ========================================
 let sesionActiva = false;
+let imagenActualMarca = null;
 let imagenActualCategoria = null;
 let imagenActualItem = null;
-let categoriaActual = null; // Para saber si estamos viendo items de una categoría
-let btnAgregarItem = null; // Se creará dinámicamente
+let nivelActual = 'marcas'; // 'marcas', 'categorias', 'productos'
+let marcaActual = null;
+let categoriaActual = null;
+let resultadosBusqueda = null;
 
 // ========================================
 // INICIALIZACIÓN
 // ========================================
 window.addEventListener('DOMContentLoaded', () => {
+    console.log('🔧 Inicializando aplicación...');
+    
     const sesion = sessionStorage.getItem('sesionActiva');
     
     if (sesion === 'true') {
         sesionActiva = true;
+        console.log('✅ Sesión activa encontrada');
     }
     
     actualizarMenu();
     loginModal.classList.add('hidden');
+    modalMarca.classList.add('hidden');
     modalCategoria.classList.add('hidden');
     modalItem.classList.add('hidden');
     
-    cargarCategorias();
+    cargarMarcas();
     
     // Event listeners para preview de imágenes
+    document.getElementById('marcaImagen').addEventListener('change', function(e) {
+        mostrarPreviewImagen(e.target.files[0], 'marca');
+    });
+    
     document.getElementById('categoriaImagen').addEventListener('change', function(e) {
         mostrarPreviewImagen(e.target.files[0], 'categoria');
     });
@@ -73,8 +102,26 @@ window.addEventListener('DOMContentLoaded', () => {
         mostrarPreviewImagen(e.target.files[0], 'item');
     });
 
-    // Crear botón flotante para agregar items (inicialmente oculto)
-    crearBotonAgregarItem();
+    // Event listeners para precios y descuentos
+    itemPrecioNormal.addEventListener('input', calcularDescuento);
+    itemPrecioDescuento.addEventListener('input', calcularDescuento);
+
+    // Event listeners para botones
+    btnAgregarCategoria.addEventListener('click', abrirModalAgregarCategoria);
+    btnAgregarItem.addEventListener('click', abrirModalAgregarItem);
+    btnBuscar.addEventListener('click', buscarProductos);
+    buscadorInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            buscarProductos();
+        }
+    });
+
+    // Configurar botones volver
+    btnVolverCategorias.addEventListener('click', volverACategorias);
+    btnVolverMarcas.addEventListener('click', volverAMarcas);
+
+    console.log('🚀 Aplicación inicializada correctamente');
+    debugEstado();
 });
 
 // ========================================
@@ -84,7 +131,12 @@ function mostrarPreviewImagen(file, tipo) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            if (tipo === 'categoria') {
+            if (tipo === 'marca') {
+                previewImageMarca.src = e.target.result;
+                imagePreviewMarca.style.display = 'block';
+                fileInputLabelMarca.classList.add('has-image');
+                imagenActualMarca = file;
+            } else if (tipo === 'categoria') {
                 previewImageCategoria.src = e.target.result;
                 imagePreviewCategoria.style.display = 'block';
                 fileInputLabelCategoria.classList.add('has-image');
@@ -139,28 +191,140 @@ async function eliminarImagen(url) {
 }
 
 // ========================================
-// FUNCIONES SUPABASE - CATEGORÍAS
+// FUNCIONES SUPABASE - MARCAS
 // ========================================
-async function cargarCategorias() {
+async function cargarMarcas() {
     try {
-        const { data: categorias, error } = await supabase
-            .from('categorias')
+        console.log('📦 Cargando marcas...');
+        const { data: marcas, error } = await supabase
+            .from('marcas')
             .select('*')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        renderizarCategorias(categorias || []);
         
+        nivelActual = 'marcas';
+        marcaActual = null;
         categoriaActual = null;
-        btnVolverCategorias.classList.remove('visible');
+        resultadosBusqueda = null;
         
-        if (sesionActiva) {
-            btnAgregarFlotante.classList.add('visible');
-            btnAgregarFlotante.textContent = '➕ Agregar Categoría';
-            if (btnAgregarItem) btnAgregarItem.classList.remove('visible');
-        }
+        actualizarTitulo('Nuestras Marcas');
+        renderizarMarcas(marcas || []);
+        actualizarBotonesVolver();
+        actualizarBotonesFlotantes();
+        
+        console.log(`✅ ${marcas?.length || 0} marcas cargadas`);
+        
     } catch (error) {
-        console.error('Error cargando categorías:', error);
+        console.error('❌ Error cargando marcas:', error);
+        alert('Error al cargar las marcas');
+    }
+}
+
+async function agregarMarca(marca) {
+    try {
+        const { data, error } = await supabase
+            .from('marcas')
+            .insert([marca])
+            .select();
+
+        if (error) throw error;
+        return data[0];
+    } catch (error) {
+        console.error('Error agregando marca:', error);
+        throw error;
+    }
+}
+
+async function actualizarMarca(id, datos) {
+    try {
+        const { data, error } = await supabase
+            .from('marcas')
+            .update(datos)
+            .eq('id', id)
+            .select();
+
+        if (error) throw error;
+        return data[0];
+    } catch (error) {
+        console.error('Error actualizando marca:', error);
+        throw error;
+    }
+}
+
+async function eliminarMarcaDB(id) {
+    try {
+        // Eliminar imagen de la marca
+        const { data: marca } = await supabase
+            .from('marcas')
+            .select('imagen_url')
+            .eq('id', id)
+            .single();
+
+        if (marca && marca.imagen_url) {
+            await eliminarImagen(marca.imagen_url);
+        }
+
+        // Eliminar categorías relacionadas y sus productos
+        const { data: categorias } = await supabase
+            .from('categorias')
+            .select('id, imagen_url')
+            .eq('marca_id', id);
+
+        if (categorias && categorias.length > 0) {
+            for (const categoria of categorias) {
+                await eliminarCategoriaDB(categoria.id);
+            }
+        }
+
+        // Eliminar marca
+        const { error } = await supabase
+            .from('marcas')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+    } catch (error) {
+        console.error('Error eliminando marca:', error);
+        throw error;
+    }
+}
+
+// ========================================
+// FUNCIONES SUPABASE - CATEGORÍAS
+// ========================================
+async function cargarCategorias(marcaId) {
+    try {
+        console.log(`📦 Cargando categorías para marca ${marcaId}...`);
+        const { data: categorias, error } = await supabase
+            .from('categorias')
+            .select('*')
+            .eq('marca_id', marcaId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        
+        nivelActual = 'categorias';
+        marcaActual = marcaId;
+        categoriaActual = null;
+        resultadosBusqueda = null;
+        
+        // Obtener nombre de la marca para el título
+        const { data: marca } = await supabase
+            .from('marcas')
+            .select('nombre')
+            .eq('id', marcaId)
+            .single();
+            
+        actualizarTitulo(marca ? `Categorías - ${marca.nombre}` : 'Categorías');
+        renderizarCategorias(categorias || []);
+        actualizarBotonesVolver();
+        actualizarBotonesFlotantes();
+        
+        console.log(`✅ ${categorias?.length || 0} categorías cargadas`);
+        
+    } catch (error) {
+        console.error('❌ Error cargando categorías:', error);
         alert('Error al cargar las categorías');
     }
 }
@@ -243,6 +407,7 @@ async function eliminarCategoriaDB(id) {
 // ========================================
 async function cargarItems(categoriaId) {
     try {
+        console.log(`📦 Cargando productos para categoría ${categoriaId}...`);
         const { data: items, error } = await supabase
             .from('items')
             .select('*')
@@ -251,17 +416,30 @@ async function cargarItems(categoriaId) {
 
         if (error) throw error;
         
+        nivelActual = 'productos';
         categoriaActual = categoriaId;
+        resultadosBusqueda = null;
+        
+        // Obtener nombre de la categoría y marca para el título
+        const { data: categoriaInfo } = await supabase
+            .from('categorias')
+            .select('nombre, marcas(nombre)')
+            .eq('id', categoriaId)
+            .single();
+            
+        const titulo = categoriaInfo ? 
+            `Productos - ${categoriaInfo.nombre}` : 
+            'Productos';
+            
+        actualizarTitulo(titulo);
         renderizarItems(items || []);
+        actualizarBotonesVolver();
+        actualizarBotonesFlotantes();
         
-        btnVolverCategorias.classList.add('visible');
+        console.log(`✅ ${items?.length || 0} productos cargados`);
         
-        if (sesionActiva) {
-            btnAgregarFlotante.classList.remove('visible');
-            if (btnAgregarItem) btnAgregarItem.classList.add('visible');
-        }
     } catch (error) {
-        console.error('Error cargando items:', error);
+        console.error('❌ Error cargando items:', error);
         alert('Error al cargar los productos');
     }
 }
@@ -322,14 +500,109 @@ async function eliminarItemDB(id) {
 }
 
 // ========================================
+// FUNCIONES DE BÚSQUEDA
+// ========================================
+async function buscarProductos() {
+    const termino = buscadorInput.value.trim();
+    
+    if (!termino) {
+        // Si no hay término, volver a la vista actual
+        if (resultadosBusqueda) {
+            restaurarVistaAnterior();
+        }
+        return;
+    }
+
+    try {
+        const { data: items, error } = await supabase
+            .from('items')
+            .select(`
+                *,
+                categorias (
+                    nombre,
+                    marcas (
+                        nombre
+                    )
+                )
+            `)
+            .or(`nombre.ilike.%${termino}%,descripcion.ilike.%${termino}%`)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        resultadosBusqueda = items || [];
+        renderizarResultadosBusqueda(resultadosBusqueda, termino);
+        
+    } catch (error) {
+        console.error('Error buscando productos:', error);
+        alert('Error al buscar productos');
+    }
+}
+
+function restaurarVistaAnterior() {
+    resultadosBusqueda = null;
+    buscadorInput.value = '';
+    
+    switch (nivelActual) {
+        case 'marcas':
+            cargarMarcas();
+            break;
+        case 'categorias':
+            cargarCategorias(marcaActual);
+            break;
+        case 'productos':
+            cargarItems(categoriaActual);
+            break;
+    }
+}
+
+// ========================================
 // RENDERIZADO
 // ========================================
+function renderizarMarcas(marcas) {
+    const productosContainer = document.getElementById('productosContainer');
+    productosContainer.innerHTML = '';
+    
+    if (marcas.length === 0) {
+        productosContainer.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #000000; font-size: 1.2rem;">No hay marcas disponibles</p>';
+        return;
+    }
+    
+    marcas.forEach(marca => {
+        const div = crearElementoMarca(marca);
+        productosContainer.appendChild(div);
+    });
+}
+
+function crearElementoMarca(marca) {
+    const div = document.createElement('div');
+    div.className = 'producto';
+    div.setAttribute('data-id', marca.id);
+    
+    const accionesClass = sesionActiva ? 'producto-actions visible' : 'producto-actions';
+    
+    div.innerHTML = `
+        <div class="producto-img" onclick="verCategorias(${marca.id})">
+            <img src="${marca.imagen_url}" alt="${marca.nombre}" 
+                onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+No+Disponible'">
+        </div>
+        <div class="producto-nombre">
+            <h3>${marca.nombre}</h3>
+        </div>
+        <div class="${accionesClass}">
+            <button class="btn-editar" onclick="event.stopPropagation(); editarMarca(${marca.id})">✏️ Editar</button>
+            <button class="btn-eliminar" onclick="event.stopPropagation(); eliminarMarca(${marca.id})">🗑️ Eliminar</button>
+        </div>
+    `;
+    return div;
+}
+
 function renderizarCategorias(categorias) {
     const productosContainer = document.getElementById('productosContainer');
     productosContainer.innerHTML = '';
     
     if (categorias.length === 0) {
-        productosContainer.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #000000ff; font-size: 1.2rem;">No hay categorías disponibles</p>';
+        productosContainer.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #000000; font-size: 1.2rem;">No hay categorías disponibles</p>';
         return;
     }
     
@@ -344,16 +617,15 @@ function crearElementoCategoria(categoria) {
     div.className = 'producto';
     div.setAttribute('data-id', categoria.id);
     
-    // ✅ CORRECCIÓN: Se eliminó el style inline problemático
     const accionesClass = sesionActiva ? 'producto-actions visible' : 'producto-actions';
     
     div.innerHTML = `
-        <div class="producto-img" onclick="verItems(${categoria.id})">
+        <div class="producto-img" onclick="verProductos(${categoria.id})">
             <img src="${categoria.imagen_url}" alt="${categoria.nombre}" 
                 onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+No+Disponible'">
-            <div class="producto-info">
-                <h3>${categoria.nombre}</h3>
-            </div>
+        </div>
+        <div class="producto-nombre">
+            <h3>${categoria.nombre}</h3>
         </div>
         <div class="${accionesClass}">
             <button class="btn-editar" onclick="event.stopPropagation(); editarCategoria(${categoria.id})">✏️ Editar</button>
@@ -368,22 +640,9 @@ function renderizarItems(items) {
     productosContainer.innerHTML = '';
     
     if (items.length === 0) {
-        productosContainer.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #000000ff; font-size: 1.2rem;">No hay productos en esta categoría</p>';
+        productosContainer.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #000000; font-size: 1.2rem;">No hay productos en esta categoría</p>';
         return;
     }
-    
-    // ⭐ DEPURACIÓN: Ver los datos que llegan
-    console.log('=== ITEMS CARGADOS ===');
-    console.log('Total items:', items.length);
-    items.forEach((item, index) => {
-        console.log(`Item ${index + 1}:`, {
-            id: item.id,
-            nombre: item.nombre,
-            descripcion: item.descripcion,
-            tiene_descripcion: !!item.descripcion,
-            descripcion_vacia: item.descripcion === '' || item.descripcion === null
-        });
-    });
     
     items.forEach(item => {
         const div = crearElementoItem(item);
@@ -398,7 +657,7 @@ function crearElementoItem(item) {
     
     const accionesClass = sesionActiva ? 'producto-actions visible' : 'producto-actions';
     
-    // ⭐ PREPARAR DESCRIPCIÓN
+    // Preparar descripción
     let descripcionTexto = '';
     let descripcionClass = '';
     
@@ -410,23 +669,121 @@ function crearElementoItem(item) {
         descripcionClass = ' class="sin-descripcion"';
     }
     
-    // ⭐ DEPURACIÓN
-    console.log(`Renderizando item "${item.nombre}":`, {
-        descripcion_original: item.descripcion,
-        descripcion_final: descripcionTexto
-    });
+    // Preparar precios
+    const precioNormal = item.precio_normal || 0;
+    const precioDescuento = item.precio_descuento || 0;
+    let preciosHTML = '';
     
-    // ⭐ NUEVO HTML: Descripción FUERA de producto-img
+    if (precioDescuento > 0 && precioDescuento < precioNormal) {
+        const porcentaje = Math.round(((precioNormal - precioDescuento) / precioNormal) * 100);
+        preciosHTML = `
+            <div class="producto-precios">
+                <span class="precio-normal">$${precioNormal.toFixed(2)}</span>
+                <span class="precio-descuento">$${precioDescuento.toFixed(2)}</span>
+                <span class="badge-descuento">-${porcentaje}%</span>
+            </div>
+        `;
+    } else if (precioNormal > 0) {
+        preciosHTML = `
+            <div class="producto-precios">
+                <span class="solo-precio">$${precioNormal.toFixed(2)}</span>
+            </div>
+        `;
+    }
+    
     div.innerHTML = `
         <div class="producto-img">
             <img src="${item.imagen_url}" alt="${item.nombre}" 
                 onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+No+Disponible'">
-            <div class="producto-info">
-                <h3>${item.nombre}</h3>
-            </div>
         </div>
+        <div class="producto-nombre">
+            <h3>${item.nombre}</h3>
+        </div>
+        ${preciosHTML}
         <div class="producto-descripcion">
             <p${descripcionClass}>${descripcionTexto}</p>
+        </div>
+        <div class="${accionesClass}">
+            <button class="btn-editar" onclick="editarItem(${item.id})">✏️ Editar</button>
+            <button class="btn-eliminar" onclick="eliminarItem(${item.id})">🗑️ Eliminar</button>
+        </div>
+    `;
+    
+    return div;
+}
+
+function renderizarResultadosBusqueda(resultados, termino) {
+    const productosContainer = document.getElementById('productosContainer');
+    productosContainer.innerHTML = '';
+    
+    if (resultados.length === 0) {
+        productosContainer.innerHTML = `
+            <p style="text-align: center; grid-column: 1/-1; color: #000000; font-size: 1.2rem;">
+                No se encontraron productos para "${termino}"
+            </p>
+        `;
+        return;
+    }
+    
+    actualizarTitulo(`Resultados para "${termino}"`);
+    
+    resultados.forEach(item => {
+        const div = crearElementoItemBusqueda(item);
+        productosContainer.appendChild(div);
+    });
+}
+
+function crearElementoItemBusqueda(item) {
+    const div = document.createElement('div');
+    div.className = 'producto';
+    div.setAttribute('data-id', item.id);
+    
+    const accionesClass = sesionActiva ? 'producto-actions visible' : 'producto-actions';
+    
+    // Información de categoría y marca
+    const categoriaNombre = item.categorias?.nombre || 'Categoría desconocida';
+    const marcaNombre = item.categorias?.marcas?.nombre || 'Marca desconocida';
+    
+    // Preparar descripción
+    let descripcionTexto = item.descripcion && item.descripcion.trim() !== '' ? 
+        item.descripcion.trim() : 'Sin descripción';
+    
+    // Preparar precios
+    const precioNormal = item.precio_normal || 0;
+    const precioDescuento = item.precio_descuento || 0;
+    let preciosHTML = '';
+    
+    if (precioDescuento > 0 && precioDescuento < precioNormal) {
+        const porcentaje = Math.round(((precioNormal - precioDescuento) / precioNormal) * 100);
+        preciosHTML = `
+            <div class="producto-precios">
+                <span class="precio-normal">$${precioNormal.toFixed(2)}</span>
+                <span class="precio-descuento">$${precioDescuento.toFixed(2)}</span>
+                <span class="badge-descuento">-${porcentaje}%</span>
+            </div>
+        `;
+    } else if (precioNormal > 0) {
+        preciosHTML = `
+            <div class="producto-precios">
+                <span class="solo-precio">$${precioNormal.toFixed(2)}</span>
+            </div>
+        `;
+    }
+    
+    div.innerHTML = `
+        <div class="producto-img">
+            <img src="${item.imagen_url}" alt="${item.nombre}" 
+                onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+No+Disponible'">
+        </div>
+        <div class="producto-nombre">
+            <h3>${item.nombre}</h3>
+        </div>
+        <div class="producto-info-busqueda" style="padding: 8px; background: #f8f9fa; border-radius: 5px; margin: 5px 0; font-size: 0.8rem; color: #666;">
+            <strong>${marcaNombre}</strong> › ${categoriaNombre}
+        </div>
+        ${preciosHTML}
+        <div class="producto-descripcion">
+            <p>${descripcionTexto}</p>
         </div>
         <div class="${accionesClass}">
             <button class="btn-editar" onclick="editarItem(${item.id})">✏️ Editar</button>
@@ -440,14 +797,96 @@ function crearElementoItem(item) {
 // ========================================
 // NAVEGACIÓN
 // ========================================
-function verItems(categoriaId) {
+function verCategorias(marcaId) {
+    console.log(`🔍 Navegando a categorías de marca ${marcaId}`);
+    cargarCategorias(marcaId);
+}
+
+function verProductos(categoriaId) {
+    console.log(`🔍 Navegando a productos de categoría ${categoriaId}`);
     cargarItems(categoriaId);
 }
 
-btnVolverCategorias.addEventListener('click', (e) => {
-    e.preventDefault();
-    cargarCategorias();
-});
+function volverACategorias() {
+    console.log('↩️ Volviendo a categorías');
+    if (marcaActual) {
+        cargarCategorias(marcaActual);
+    } else {
+        cargarMarcas();
+    }
+}
+
+function volverAMarcas() {
+    console.log('↩️ Volviendo a marcas');
+    cargarMarcas();
+}
+
+// ========================================
+// MANEJO DE INTERFAZ
+// ========================================
+function actualizarTitulo(texto) {
+    if (tituloDinamico) {
+        tituloDinamico.textContent = texto;
+    }
+}
+
+function actualizarBotonesVolver() {
+    console.log('🔄 Actualizando botones volver - Nivel:', nivelActual);
+    
+    // Ocultar todos primero
+    btnVolverCategorias.classList.remove('visible');
+    btnVolverMarcas.classList.remove('visible');
+    
+    // Mostrar los necesarios según el nivel
+    switch (nivelActual) {
+        case 'marcas':
+            // En marcas, no mostrar botones volver
+            break;
+        case 'categorias':
+            btnVolverMarcas.classList.add('visible');
+            break;
+        case 'productos':
+            btnVolverCategorias.classList.add('visible');
+            btnVolverMarcas.classList.add('visible');
+            break;
+    }
+    
+    console.log('Botones volver:', {
+        volverCategorias: btnVolverCategorias.classList.contains('visible'),
+        volverMarcas: btnVolverMarcas.classList.contains('visible')
+    });
+}
+
+function actualizarBotonesFlotantes() {
+    console.log('🔄 Actualizando botones flotantes - Nivel:', nivelActual, 'Sesión:', sesionActiva);
+    
+    // Ocultar todos primero
+    btnAgregarFlotante.classList.remove('visible');
+    btnAgregarCategoria.classList.remove('visible');
+    btnAgregarItem.classList.remove('visible');
+    
+    // Mostrar según nivel y sesión
+    if (sesionActiva && !resultadosBusqueda) {
+        switch (nivelActual) {
+            case 'marcas':
+                btnAgregarFlotante.classList.add('visible');
+                btnAgregarFlotante.textContent = '➕ Agregar Marca';
+                break;
+            case 'categorias':
+                btnAgregarCategoria.classList.add('visible');
+                break;
+            case 'productos':
+                btnAgregarItem.classList.add('visible');
+                break;
+        }
+    }
+    
+    console.log('Botones flotantes visibles:', {
+        agregarFlotante: btnAgregarFlotante.classList.contains('visible'),
+        agregarCategoria: btnAgregarCategoria.classList.contains('visible'),
+        agregarItem: btnAgregarItem.classList.contains('visible')
+    });
+}
 
 // ========================================
 // MANEJO DE SESIÓN
@@ -462,6 +901,8 @@ loginForm.addEventListener('submit', (e) => {
         cerrarModalLogin();
         actualizarMenu();
         mostrarBotonesEdicion();
+        actualizarBotonesFlotantes();
+        console.log('🔓 Sesión iniciada correctamente');
     } else {
         errorMsg.textContent = '❌ Clave incorrecta. Intenta de nuevo.';
         passwordInput.value = '';
@@ -489,7 +930,9 @@ btnCerrar.addEventListener('click', (e) => {
         sessionStorage.removeItem('sesionActiva');
         actualizarMenu();
         ocultarBotonesEdicion();
+        actualizarBotonesFlotantes();
         cerrarMenuHamburguesa();
+        console.log('🔒 Sesión cerrada');
     }
 });
 
@@ -529,36 +972,160 @@ function actualizarMenu() {
 function mostrarBotonesEdicion() {
     const acciones = document.querySelectorAll('.producto-actions');
     acciones.forEach(accion => accion.classList.add('visible'));
-    
-    if (categoriaActual) {
-        if (btnAgregarItem) btnAgregarItem.classList.add('visible');
-        btnAgregarFlotante.classList.remove('visible');
-    } else {
-        btnAgregarFlotante.classList.add('visible');
-        if (btnAgregarItem) btnAgregarItem.classList.remove('visible');
-    }
+    actualizarBotonesFlotantes();
+    console.log('👁️ Botones de edición mostrados');
 }
 
 function ocultarBotonesEdicion() {
     const acciones = document.querySelectorAll('.producto-actions');
     acciones.forEach(accion => accion.classList.remove('visible'));
-    
-    btnAgregarFlotante.classList.remove('visible');
-    if (btnAgregarItem) btnAgregarItem.classList.remove('visible');
+    actualizarBotonesFlotantes();
+    console.log('👁️ Botones de edición ocultados');
 }
 
-function crearBotonAgregarItem() {
-    btnAgregarItem = document.createElement('button');
-    btnAgregarItem.className = 'btn-agregar-item';
-    btnAgregarItem.textContent = '➕ Agregar Producto';
-    btnAgregarItem.onclick = abrirModalAgregarItem;
-    document.body.appendChild(btnAgregarItem);
+// ========================================
+// SISTEMA DE PRECIOS Y DESCUENTOS
+// ========================================
+function calcularDescuento() {
+    const precioNormal = parseFloat(itemPrecioNormal.value) || 0;
+    const precioDescuento = parseFloat(itemPrecioDescuento.value) || 0;
+    
+    if (precioDescuento > 0 && precioDescuento < precioNormal) {
+        const porcentaje = Math.round(((precioNormal - precioDescuento) / precioNormal) * 100);
+        const ahorro = precioNormal - precioDescuento;
+        
+        porcentajeDescuento.textContent = `-${porcentaje}%`;
+        ahorroTexto.textContent = `Ahorras $${ahorro.toFixed(2)}`;
+        descuentoInfo.style.display = 'block';
+    } else {
+        descuentoInfo.style.display = 'none';
+    }
 }
+
+// ========================================
+// GESTIÓN DE MARCAS (CRUD)
+// ========================================
+function abrirModalAgregar() {
+    if (!sesionActiva) {
+        alert('Debe iniciar sesión para agregar marcas');
+        return;
+    }
+    
+    document.getElementById('tituloModalMarca').textContent = 'Agregar Marca';
+    formMarca.reset();
+    document.getElementById('marcaId').value = '';
+    imagePreviewMarca.style.display = 'none';
+    fileInputLabelMarca.classList.remove('has-image');
+    imagenActualMarca = null;
+    modalMarca.classList.remove('hidden');
+}
+
+function cerrarModalMarca() {
+    modalMarca.classList.add('hidden');
+    formMarca.reset();
+    imagePreviewMarca.style.display = 'none';
+    fileInputLabelMarca.classList.remove('has-image');
+    imagenActualMarca = null;
+}
+
+async function editarMarca(id) {
+    if (!sesionActiva) {
+        alert('Debe iniciar sesión para editar marcas');
+        return;
+    }
+
+    try {
+        const { data: marca, error } = await supabase
+            .from('marcas')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) throw error;
+
+        document.getElementById('tituloModalMarca').textContent = 'Editar Marca';
+        document.getElementById('marcaId').value = marca.id;
+        document.getElementById('marcaNombre').value = marca.nombre;
+        
+        previewImageMarca.src = marca.imagen_url;
+        imagePreviewMarca.style.display = 'block';
+        fileInputLabelMarca.classList.add('has-image');
+        
+        imagenActualMarca = null;
+        modalMarca.classList.remove('hidden');
+    } catch (error) {
+        console.error('Error cargando marca:', error);
+        alert('Error al cargar la marca');
+    }
+}
+
+async function eliminarMarca(id) {
+    if (!sesionActiva) {
+        alert('Debe iniciar sesión para eliminar marcas');
+        return;
+    }
+
+    if (confirm('¿Está seguro? Esto eliminará la marca, todas sus categorías y productos.')) {
+        try {
+            await eliminarMarcaDB(id);
+            await cargarMarcas();
+        } catch (error) {
+            alert('Error al eliminar la marca');
+        }
+    }
+}
+
+formMarca.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById('marcaId').value;
+    const nombre = document.getElementById('marcaNombre').value.trim();
+
+    if (!id && !imagenActualMarca) {
+        alert('Por favor seleccione una imagen para la nueva marca');
+        return;
+    }
+
+    try {
+        let imagen_url = previewImageMarca.src;
+
+        if (imagenActualMarca) {
+            if (id) {
+                const { data: marcaAnterior } = await supabase
+                    .from('marcas')
+                    .select('imagen_url')
+                    .eq('id', id)
+                    .single();
+                    
+                if (marcaAnterior && marcaAnterior.imagen_url) {
+                    eliminarImagen(marcaAnterior.imagen_url);
+                }
+            }
+            imagen_url = await subirImagen(imagenActualMarca, 'marcas');
+        }
+
+        const datosMarca = {
+            nombre: nombre,
+            imagen_url: imagen_url
+        };
+
+        if (id) {
+            await actualizarMarca(id, datosMarca);
+        } else {
+            await agregarMarca(datosMarca);
+        }
+
+        await cargarMarcas();
+        cerrarModalMarca();
+    } catch (error) {
+        alert('Error al guardar la marca: ' + error.message);
+    }
+});
 
 // ========================================
 // GESTIÓN DE CATEGORÍAS (CRUD)
 // ========================================
-function abrirModalAgregar() {
+function abrirModalAgregarCategoria() {
     if (!sesionActiva) {
         alert('Debe iniciar sesión para agregar categorías');
         return;
@@ -567,6 +1134,7 @@ function abrirModalAgregar() {
     document.getElementById('tituloModalCategoria').textContent = 'Agregar Categoría';
     formCategoria.reset();
     document.getElementById('categoriaId').value = '';
+    document.getElementById('categoriaMarcaId').value = marcaActual;
     imagePreviewCategoria.style.display = 'none';
     fileInputLabelCategoria.classList.remove('has-image');
     imagenActualCategoria = null;
@@ -598,6 +1166,7 @@ async function editarCategoria(id) {
 
         document.getElementById('tituloModalCategoria').textContent = 'Editar Categoría';
         document.getElementById('categoriaId').value = categoria.id;
+        document.getElementById('categoriaMarcaId').value = categoria.marca_id;
         document.getElementById('categoriaNombre').value = categoria.nombre;
         
         previewImageCategoria.src = categoria.imagen_url;
@@ -621,7 +1190,7 @@ async function eliminarCategoria(id) {
     if (confirm('¿Está seguro? Esto eliminará la categoría y todos sus productos.')) {
         try {
             await eliminarCategoriaDB(id);
-            await cargarCategorias();
+            await cargarCategorias(marcaActual);
         } catch (error) {
             alert('Error al eliminar la categoría');
         }
@@ -632,6 +1201,7 @@ formCategoria.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const id = document.getElementById('categoriaId').value;
+    const marcaId = document.getElementById('categoriaMarcaId').value;
     const nombre = document.getElementById('categoriaNombre').value.trim();
 
     if (!id && !imagenActualCategoria) {
@@ -658,6 +1228,7 @@ formCategoria.addEventListener('submit', async (e) => {
         }
 
         const datosCategoria = {
+            marca_id: marcaId,
             nombre: nombre,
             imagen_url: imagen_url
         };
@@ -668,7 +1239,7 @@ formCategoria.addEventListener('submit', async (e) => {
             await agregarCategoria(datosCategoria);
         }
 
-        await cargarCategorias();
+        await cargarCategorias(marcaId);
         cerrarModalCategoria();
     } catch (error) {
         alert('Error al guardar la categoría: ' + error.message);
@@ -691,6 +1262,7 @@ function abrirModalAgregarItem() {
     imagePreviewItem.style.display = 'none';
     fileInputLabelItem.classList.remove('has-image');
     imagenActualItem = null;
+    descuentoInfo.style.display = 'none';
     modalItem.classList.remove('hidden');
 }
 
@@ -700,6 +1272,7 @@ function cerrarModalItem() {
     imagePreviewItem.style.display = 'none';
     fileInputLabelItem.classList.remove('has-image');
     imagenActualItem = null;
+    descuentoInfo.style.display = 'none';
 }
 
 async function editarItem(id) {
@@ -722,12 +1295,18 @@ async function editarItem(id) {
         document.getElementById('itemCategoriaId').value = item.categoria_id;
         document.getElementById('itemNombre').value = item.nombre;
         document.getElementById('itemDescripcion').value = item.descripcion || '';
+        document.getElementById('itemPrecioNormal').value = item.precio_normal || '';
+        document.getElementById('itemPrecioDescuento').value = item.precio_descuento || '';
         
         previewImageItem.src = item.imagen_url;
         imagePreviewItem.style.display = 'block';
         fileInputLabelItem.classList.add('has-image');
         
         imagenActualItem = null;
+        
+        // Calcular descuento si hay precios
+        calcularDescuento();
+        
         modalItem.classList.remove('hidden');
     } catch (error) {
         console.error('Error cargando item:', error);
@@ -758,6 +1337,8 @@ formItem.addEventListener('submit', async (e) => {
     const categoriaId = document.getElementById('itemCategoriaId').value;
     const nombre = document.getElementById('itemNombre').value.trim();
     const descripcion = document.getElementById('itemDescripcion').value.trim();
+    const precioNormal = parseFloat(document.getElementById('itemPrecioNormal').value) || 0;
+    const precioDescuento = parseFloat(document.getElementById('itemPrecioDescuento').value) || 0;
 
     if (!id && !imagenActualItem) {
         alert('Por favor seleccione una imagen para el nuevo producto');
@@ -786,6 +1367,8 @@ formItem.addEventListener('submit', async (e) => {
             categoria_id: categoriaId,
             nombre: nombre,
             descripcion: descripcion,
+            precio_normal: precioNormal,
+            precio_descuento: precioDescuento,
             imagen_url: imagen_url
         };
 
@@ -803,10 +1386,35 @@ formItem.addEventListener('submit', async (e) => {
 });
 
 // ========================================
+// FUNCIÓN DE DEPURACIÓN
+// ========================================
+function debugEstado() {
+    console.log('=== 🐛 DEBUG ESTADO ===');
+    console.log('Sesión activa:', sesionActiva);
+    console.log('Nivel actual:', nivelActual);
+    console.log('Marca actual:', marcaActual);
+    console.log('Categoría actual:', categoriaActual);
+    console.log('Resultados búsqueda:', resultadosBusqueda);
+    console.log('Botones volver:', {
+        volverCategorias: document.getElementById('btnVolverCategorias')?.classList.contains('visible'),
+        volverMarcas: document.getElementById('btnVolverMarcas')?.classList.contains('visible')
+    });
+    console.log('Botones flotantes:', {
+        agregarMarca: document.getElementById('btnAgregarFlotante')?.classList.contains('visible'),
+        agregarCategoria: document.getElementById('btnAgregarCategoria')?.classList.contains('visible'),
+        agregarProducto: document.getElementById('btnAgregarItem')?.classList.contains('visible')
+    });
+    console.log('=== FIN DEBUG ===');
+}
+
+// ========================================
 // CERRAR MODALES CON ESC
 // ========================================
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+        if (!modalMarca.classList.contains('hidden')) {
+            cerrarModalMarca();
+        }
         if (!modalCategoria.classList.contains('hidden')) {
             cerrarModalCategoria();
         }
@@ -820,3 +1428,6 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+// Hacer la función debugEstado disponible globalmente
+window.debugEstado = debugEstado;

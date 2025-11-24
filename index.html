@@ -29,7 +29,11 @@
     <header>
         <div class="header-content">
             <button class="btn-volver" id="btnVolverCategorias">
-                ← Volver
+                ← Categorías
+            </button>
+            
+            <button class="btn-volver btn-volver-marcas" id="btnVolverMarcas">
+                ← Marcas
             </button>
             
             <div class="hamburger-icon-new" id="hamburgerIcon">
@@ -39,6 +43,12 @@
             </div>
             
             <h1>DERMOBOTANICS</h1>
+        </div>
+        
+        <!-- Buscador -->
+        <div class="buscador-container">
+            <input type="text" id="buscadorInput" placeholder="🔍 Buscar productos...">
+            <button id="btnBuscar">Buscar</button>
         </div>
         
         <nav class="menu-nav" id="menuNav">
@@ -84,17 +94,26 @@
 
     <!-- Título de Sección -->
     <div class="titulo-seccion" id="tituloSeccion">
-        <h2>Nuestros Productos</h2>
+        <h2 id="tituloDinamico">Nuestras Marcas</h2>
         <div class="titulo-linea"></div>
     </div>
 
     <!-- Contenedor de Productos/Categorías -->
     <section class="productos" id="productosContainer">
+        <!-- Las marcas/categorías/productos se cargan dinámicamente aquí -->
     </section>
 
-    <!-- Botón Flotante Agregar Categoría -->
-    <button class="btn-agregar-flotante" id="btnAgregarFlotante" onclick="abrirModalAgregar()">
+    <!-- Botones Flotantes -->
+    <button class="btn-agregar-flotante" id="btnAgregarFlotante">
+        ➕ Agregar Marca
+    </button>
+
+    <button class="btn-agregar-categoria" id="btnAgregarCategoria">
         ➕ Agregar Categoría
+    </button>
+
+    <button class="btn-agregar-item" id="btnAgregarItem">
+        ➕ Agregar Producto
     </button>
 
     <!-- Botón WhatsApp -->
@@ -103,6 +122,35 @@
         <span class="whatsapp-icon">💬</span>
     </a>
 
+    <!-- Modal Marca -->
+    <div id="modalMarca" class="modal hidden">
+        <div class="modal-content modal-producto">
+            <span class="close-modal" onclick="cerrarModalMarca()">&times;</span>
+            <h2 id="tituloModalMarca">Agregar Marca</h2>
+            <form id="formMarca">
+                <input type="hidden" id="marcaId">
+                
+                <div class="file-input-container">
+                    <label for="marcaImagen" class="file-input-label" id="fileInputLabelMarca">
+                        📸 Seleccionar Imagen
+                    </label>
+                    <input type="file" id="marcaImagen" accept="image/*" style="display: none;">
+                    <div class="image-preview" id="imagePreviewMarca" style="display: none;">
+                        <img id="previewImageMarca" src="#" alt="Vista previa">
+                    </div>
+                </div>
+                
+                <label>Nombre de la Marca:</label>
+                <input type="text" id="marcaNombre" placeholder="Ej: L'Oréal" required>
+                
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-guardar">💾 Guardar</button>
+                    <button type="button" class="btn-cancelar" onclick="cerrarModalMarca()">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal Categoría -->
     <div id="modalCategoria" class="modal hidden">
         <div class="modal-content modal-producto">
@@ -110,6 +158,7 @@
             <h2 id="tituloModalCategoria">Agregar Categoría</h2>
             <form id="formCategoria">
                 <input type="hidden" id="categoriaId">
+                <input type="hidden" id="categoriaMarcaId">
                 
                 <div class="file-input-container">
                     <label for="categoriaImagen" class="file-input-label" id="fileInputLabelCategoria">
@@ -157,6 +206,23 @@
                 <label>Descripción:</label>
                 <textarea id="itemDescripcion" placeholder="Escribe la descripción del producto aquí..." rows="4"></textarea>
                 
+                <div class="precio-container">
+                    <div class="precio-input">
+                        <label>Precio Normal ($):</label>
+                        <input type="number" id="itemPrecioNormal" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    
+                    <div class="precio-input">
+                        <label>Precio con Descuento ($):</label>
+                        <input type="number" id="itemPrecioDescuento" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                </div>
+                
+                <div class="descuento-info" id="descuentoInfo" style="display: none;">
+                    <span class="porcentaje-descuento" id="porcentajeDescuento"></span>
+                    <span class="ahorro-texto" id="ahorroTexto"></span>
+                </div>
+                
                 <div class="modal-buttons">
                     <button type="submit" class="btn-guardar">💾 Guardar</button>
                     <button type="button" class="btn-cancelar" onclick="cerrarModalItem()">❌ Cancelar</button>
@@ -170,8 +236,6 @@
         <p>© 2025 Rest&Relax.</p>
     </footer>
 
-    <script src="script.js"></script>
-    
     <!-- CSS adicional para la sección Hero -->
     <style>
     .hero-section {
@@ -331,6 +395,261 @@
         }
     }
 
+    /* BUSCADOR */
+    .buscador-container {
+        position: fixed;
+        top: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 980;
+        display: flex;
+        gap: 10px;
+        background: white;
+        padding: 10px 15px;
+        border-radius: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        max-width: 400px;
+        width: 90%;
+    }
+
+    #buscadorInput {
+        flex: 1;
+        padding: 10px 15px;
+        border: 2px solid #D4AF37;
+        border-radius: 20px;
+        font-family: 'Inknut Antiqua', serif;
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+    #buscadorInput:focus {
+        border-color: #B8860B;
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    #btnBuscar {
+        background: #D4AF37;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-family: 'Inknut Antiqua', serif;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    #btnBuscar:hover {
+        background: #B8860B;
+        transform: translateY(-2px);
+    }
+
+    /* BOTONES VOLVER */
+    .btn-volver-marcas {
+        left: 120px !important;
+        background: #9b59b6 !important;
+    }
+
+    .btn-volver-marcas:hover {
+        background: #8e44ad !important;
+    }
+
+    /* PRECIOS Y DESCUENTOS */
+    .precio-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin: 15px 0;
+    }
+
+    .precio-input {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .precio-input label {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .precio-input input {
+        padding: 10px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-family: 'Inknut Antiqua', serif;
+    }
+
+    .precio-input input:focus {
+        border-color: #D4AF37;
+        outline: none;
+    }
+
+    .descuento-info {
+        background: #e8f5e8;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border-left: 4px solid #27ae60;
+        margin: 10px 0;
+    }
+
+    .porcentaje-descuento {
+        background: #27ae60;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .ahorro-texto {
+        color: #27ae60;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    /* NUEVOS ESTILOS PARA TEXTO FUERA DE IMAGEN */
+    .producto-img {
+        width: 100%;
+        height: 200px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+        border-radius: 5px;
+        flex-shrink: 0;
+    }
+
+    .producto-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        padding: 0;
+    }
+
+    .producto-nombre {
+        padding: 15px 10px;
+        text-align: center;
+        background: white;
+        border-radius: 0 0 5px 5px;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .producto-nombre h3 {
+        font-family: 'Inknut Antiqua', serif;
+        color: #333;
+        font-size: 1rem;
+        font-weight: 900;
+        margin: 0;
+        text-transform: uppercase;
+        line-height: 1.3;
+    }
+
+    /* PRECIOS EN PRODUCTOS */
+    .producto-precios {
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        margin: 5px 0;
+        text-align: center;
+    }
+
+    .precio-normal {
+        color: #666;
+        text-decoration: line-through;
+        font-size: 0.9rem;
+        margin-right: 8px;
+    }
+
+    .precio-descuento {
+        color: #27ae60;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .solo-precio {
+        color: #333;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .badge-descuento {
+        background: #e74c3c;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        margin-left: 5px;
+    }
+
+    /* BOTONES FLOTANTES ADICIONALES */
+    .btn-agregar-categoria {
+        position: fixed;
+        bottom: 120px;
+        right: 30px;
+        background: #9b59b6;
+        color: white;
+        border: none;
+        padding: 18px 25px;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+        transition: all 0.3s ease;
+        z-index: 998;
+        display: none;
+        font-family: 'Inknut Antiqua', serif;
+    }
+
+    .btn-agregar-categoria.visible {
+        display: block;
+    }
+
+    .btn-agregar-categoria:hover {
+        background: #8e44ad;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(155, 89, 182, 0.5);
+    }
+
+    .btn-agregar-item {
+        position: fixed;
+        bottom: 180px;
+        right: 30px;
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 18px 25px;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        transition: all 0.3s ease;
+        z-index: 998;
+        display: none;
+        font-family: 'Inknut Antiqua', serif;
+    }
+
+    .btn-agregar-item.visible {
+        display: block;
+    }
+
+    .btn-agregar-item:hover {
+        background: #2980b9;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5);
+    }
+
     @media (max-width: 768px) {
         .hero-section {
             padding: 20px 15px;
@@ -376,6 +695,44 @@
         .titulo-linea {
             width: 100px;
         }
+
+        .buscador-container {
+            top: 65px;
+            padding: 8px 12px;
+        }
+
+        #buscadorInput {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+
+        #btnBuscar {
+            padding: 8px 15px;
+            font-size: 0.8rem;
+        }
+
+        .btn-volver-marcas {
+            left: 100px !important;
+        }
+
+        .precio-container {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .btn-agregar-item {
+            bottom: 130px;
+            right: 20px;
+            padding: 12px 18px;
+            font-size: 0.85rem;
+        }
+
+        .btn-agregar-categoria {
+            bottom: 180px;
+            right: 20px;
+            padding: 12px 18px;
+            font-size: 0.85rem;
+        }
     }
 
     @media (min-width: 769px) and (max-width: 1024px) {
@@ -403,45 +760,46 @@
         const heroSection = document.getElementById('heroSection');
         const tituloSeccion = document.getElementById('tituloSeccion');
         const btnVolver = document.getElementById('btnVolverCategorias');
+        const btnVolverMarcas = document.getElementById('btnVolverMarcas');
         
-        // Si el botón "Volver" está visible, estamos en vista de items
-        if (btnVolver && btnVolver.classList.contains('visible')) {
+        // Si algún botón "Volver" está visible, estamos en vista de items o categorías
+        if ((btnVolver && btnVolver.classList.contains('visible')) || 
+            (btnVolverMarcas && btnVolverMarcas.classList.contains('visible'))) {
             heroSection.classList.remove('mostrar-hero');
-            // Cambiar el texto cuando estamos en productos de una categoría
-            if (tituloSeccion) {
-                const h2 = tituloSeccion.querySelector('h2');
-                if (h2) h2.textContent = 'Productos';
-            }
         } else {
             heroSection.classList.add('mostrar-hero');
-            // Restaurar el texto original en vista de categorías
-            if (tituloSeccion) {
-                const h2 = tituloSeccion.querySelector('h2');
-                if (h2) h2.textContent = 'Nuestros Productos';
-            }
         }
     }
     
-    // Observar cambios en el botón volver
+    // Observar cambios en los botones volver
     window.addEventListener('DOMContentLoaded', () => {
         const btnVolver = document.getElementById('btnVolverCategorias');
+        const btnVolverMarcas = document.getElementById('btnVolverMarcas');
+        
+        // Crear observers para detectar cambios de clase
+        const observer = new MutationObserver(() => {
+            actualizarVisibilidadHero();
+        });
         
         if (btnVolver) {
-            // Crear un observer para detectar cambios de clase
-            const observer = new MutationObserver(() => {
-                actualizarVisibilidadHero();
-            });
-            
             observer.observe(btnVolver, {
                 attributes: true,
                 attributeFilter: ['class']
             });
-            
-            // Verificar estado inicial
-            actualizarVisibilidadHero();
         }
+        
+        if (btnVolverMarcas) {
+            observer.observe(btnVolverMarcas, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        }
+        
+        // Verificar estado inicial
+        actualizarVisibilidadHero();
     });
     </script>
 
+    <script src="script.js"></script>
 </body>
 </html>

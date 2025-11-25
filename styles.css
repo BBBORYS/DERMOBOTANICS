@@ -134,28 +134,29 @@ header h1 {
 /* --- BUSCADOR --- */
 .buscador-container {
     position: fixed;
-    top: 70px;
+    top: 70px !important;
     left: 50%;
     transform: translateX(-50%);
     z-index: 980;
     display: flex;
-    gap: 10px;
+    gap: 4px;
     background: white;
-    padding: 10px 15px;
+    padding: 4px 6px !important;
     border-radius: 25px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    max-width: 400px;
+    max-width: 280px !important;
     width: 90%;
 }
 
 #buscadorInput {
     flex: 1;
-    padding: 10px 15px;
+    padding: 5px 8px !important;
     border: 2px solid #D4AF37;
     border-radius: 20px;
     font-family: 'Inknut Antiqua', serif;
-    font-size: 0.9rem;
+    font-size: 0.7rem !important;
     outline: none;
+    min-height: 32px;
 }
 
 #buscadorInput:focus {
@@ -167,12 +168,15 @@ header h1 {
     background: #D4AF37;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 5px 10px !important;
     border-radius: 20px;
     cursor: pointer;
     font-family: 'Inknut Antiqua', serif;
     font-weight: 600;
     transition: all 0.3s ease;
+    font-size: 0.7rem !important;
+    min-width: 60px;
+    min-height: 32px;
 }
 
 #btnBuscar:hover {
@@ -1131,20 +1135,26 @@ footer {
     }
 
     /* Buscador en móvil */
-    .buscador-container {
-        top: 65px;
-        padding: 8px 12px;
-    }
+    /* BUSCADOR EXTRA COMPACTO EN MÓVIL */
+.buscador-container {
+    top: 70px !important;
+    padding: 4px 6px !important;
+    max-width: 280px !important;
+    gap: 4px;
+}
 
-    #buscadorInput {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-    }
+#buscadorInput {
+    padding: 5px 8px !important;
+    font-size: 0.7rem !important;
+    min-height: 32px;
+}
 
-    #btnBuscar {
-        padding: 8px 15px;
-        font-size: 0.8rem;
-    }
+#btnBuscar {
+    padding: 5px 10px !important;
+    font-size: 0.7rem !important;
+    min-width: 60px;
+    min-height: 32px;
+}
 
     /* Hero Section en móvil */
     .hero-section {
@@ -1337,6 +1347,7 @@ footer {
 .producto-info-busqueda strong {
     color: #333;
 }
+
 
 /* --- Estados de carga --- */
 .loading-spinner {

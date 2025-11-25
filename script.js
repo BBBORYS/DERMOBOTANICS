@@ -214,7 +214,7 @@ async function cargarMarcas() {
         categoriaActual = null;
         resultadosBusqueda = null;
         
-        actualizarTitulo('Nuestras Marcas');
+        actualizarTitulo('Tu Bienestar, aquí');
         renderizarMarcas(marcas || []);
         actualizarBotonVolver();
         actualizarBotonesFlotantes();

@@ -21,14 +21,14 @@ const hamburgerIcon = document.getElementById('hamburgerIcon');
 const menuNav = document.getElementById('menuNav');
 const btnIniciar = document.getElementById('btnIniciar');
 const btnCerrar = document.getElementById('btnCerrar');
-const btnVolverCategorias = document.getElementById('btnVolverCategorias');
-const btnVolverMarcas = document.getElementById('btnVolverMarcas');
+const btnVolver = document.getElementById('btnVolverCategorias');
 const btnAgregarFlotante = document.getElementById('btnAgregarFlotante');
 const btnAgregarCategoria = document.getElementById('btnAgregarCategoria');
 const btnAgregarItem = document.getElementById('btnAgregarItem');
 const buscadorInput = document.getElementById('buscadorInput');
 const btnBuscar = document.getElementById('btnBuscar');
 const tituloDinamico = document.getElementById('tituloDinamico');
+const headerTitle = document.querySelector('header h1');
 
 // Modales
 const modalMarca = document.getElementById('modalMarca');
@@ -67,6 +67,7 @@ let nivelActual = 'marcas'; // 'marcas', 'categorias', 'productos'
 let marcaActual = null;
 let categoriaActual = null;
 let resultadosBusqueda = null;
+let historialNavegacion = [];
 
 // ========================================
 // INICIALIZACIÓN
@@ -116,9 +117,14 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Configurar botones volver
-    btnVolverCategorias.addEventListener('click', volverACategorias);
-    btnVolverMarcas.addEventListener('click', volverAMarcas);
+    // Configurar botón volver
+    btnVolver.addEventListener('click', volverAtras);
+
+    // Configurar clic en el título del header para ir al inicio
+    if (headerTitle) {
+        headerTitle.style.cursor = 'pointer';
+        headerTitle.addEventListener('click', irAlInicio);
+    }
 
     console.log('🚀 Aplicación inicializada correctamente');
     debugEstado();
@@ -210,8 +216,9 @@ async function cargarMarcas() {
         
         actualizarTitulo('Nuestras Marcas');
         renderizarMarcas(marcas || []);
-        actualizarBotonesVolver();
+        actualizarBotonVolver();
         actualizarBotonesFlotantes();
+        actualizarVisibilidadHero();
         
         console.log(`✅ ${marcas?.length || 0} marcas cargadas`);
         
@@ -318,8 +325,9 @@ async function cargarCategorias(marcaId) {
             
         actualizarTitulo(marca ? `Categorías - ${marca.nombre}` : 'Categorías');
         renderizarCategorias(categorias || []);
-        actualizarBotonesVolver();
+        actualizarBotonVolver();
         actualizarBotonesFlotantes();
+        actualizarVisibilidadHero();
         
         console.log(`✅ ${categorias?.length || 0} categorías cargadas`);
         
@@ -433,8 +441,9 @@ async function cargarItems(categoriaId) {
             
         actualizarTitulo(titulo);
         renderizarItems(items || []);
-        actualizarBotonesVolver();
+        actualizarBotonVolver();
         actualizarBotonesFlotantes();
+        actualizarVisibilidadHero();
         
         console.log(`✅ ${items?.length || 0} productos cargados`);
         
@@ -500,13 +509,14 @@ async function eliminarItemDB(id) {
 }
 
 // ========================================
-// FUNCIONES DE BÚSQUEDA
+// BÚSQUEDA MEJORADA - BUSCA EN TODO
 // ========================================
+
 async function buscarProductos() {
     const termino = buscadorInput.value.trim();
     
     if (!termino) {
-        // Si no hay término, volver a la vista actual
+        // Si no hay término, restaurar vista anterior
         if (resultadosBusqueda) {
             restaurarVistaAnterior();
         }
@@ -514,29 +524,183 @@ async function buscarProductos() {
     }
 
     try {
-        const { data: items, error } = await supabase
+        // Ocultar hero section cuando se busca
+        document.getElementById('heroSection').classList.remove('mostrar-hero');
+        
+        // Buscar en MARCAS
+        const { data: marcas, error: errorMarcas } = await supabase
+            .from('marcas')
+            .select('*')
+            .or(`nombre.ilike.%${termino}%`)
+            .order('created_at', { ascending: false });
+
+        if (errorMarcas) throw errorMarcas;
+
+        // Buscar en CATEGORÍAS
+        const { data: categorias, error: errorCategorias } = await supabase
+            .from('categorias')
+            .select('*')
+            .or(`nombre.ilike.%${termino}%`)
+            .order('created_at', { ascending: false });
+
+        if (errorCategorias) throw errorCategorias;
+
+        // Buscar en PRODUCTOS
+        const { data: productos, error: errorProductos } = await supabase
             .from('items')
-            .select(`
-                *,
-                categorias (
-                    nombre,
-                    marcas (
-                        nombre
-                    )
-                )
-            `)
+            .select('*')
             .or(`nombre.ilike.%${termino}%,descripcion.ilike.%${termino}%`)
             .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (errorProductos) throw errorProductos;
 
-        resultadosBusqueda = items || [];
+        // Combinar todos los resultados
+        const todosResultados = [
+            ...(marcas || []).map(item => ({ ...item, tipo: 'marca' })),
+            ...(categorias || []).map(item => ({ ...item, tipo: 'categoria' })),
+            ...(productos || []).map(item => ({ ...item, tipo: 'producto' }))
+        ];
+
+        resultadosBusqueda = todosResultados;
         renderizarResultadosBusqueda(resultadosBusqueda, termino);
         
     } catch (error) {
         console.error('Error buscando productos:', error);
         alert('Error al buscar productos');
     }
+}
+
+function renderizarResultadosBusqueda(resultados, termino) {
+    const productosContainer = document.getElementById('productosContainer');
+    productosContainer.innerHTML = '';
+    
+    if (resultados.length === 0) {
+        productosContainer.innerHTML = `
+            <p style="text-align: center; grid-column: 1/-1; color: #000000; font-size: 1.2rem;">
+                No se encontraron resultados para "${termino}"
+            </p>
+        `;
+        return;
+    }
+    
+    actualizarTitulo(`Resultados para "${termino}"`);
+    btnVolver.classList.add('visible');
+    btnVolver.textContent = '← Volver';
+    
+    // Ocultar botones flotantes durante la búsqueda
+    actualizarBotonesFlotantes();
+    
+    resultados.forEach(item => {
+        const div = crearElementoBusqueda(item);
+        productosContainer.appendChild(div);
+    });
+}
+
+function crearElementoBusqueda(item) {
+    const div = document.createElement('div');
+    div.className = 'producto';
+    div.setAttribute('data-id', item.id);
+    
+    const accionesClass = sesionActiva ? 'producto-actions visible' : 'producto-actions';
+    
+    let contenidoHTML = '';
+    let tipoTexto = '';
+    
+    switch (item.tipo) {
+        case 'marca':
+            tipoTexto = 'Marca';
+            contenidoHTML = `
+                <div class="producto-img" onclick="verCategorias(${item.id})">
+                    <img src="${item.imagen_url}" alt="${item.nombre}" 
+                        onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+No+Disponible'">
+                </div>
+                <div class="producto-nombre">
+                    <h3>${item.nombre}</h3>
+                </div>
+                <div class="producto-tipo-busqueda" style="padding: 8px; background: #D4AF37; color: white; text-align: center; font-size: 0.8rem; font-weight: bold;">
+                    ${tipoTexto}
+                </div>
+                <div class="${accionesClass}">
+                    <button class="btn-editar" onclick="event.stopPropagation(); editarMarca(${item.id})">✏️ Editar</button>
+                    <button class="btn-eliminar" onclick="event.stopPropagation(); eliminarMarca(${item.id})">🗑️ Eliminar</button>
+                </div>
+            `;
+            break;
+            
+        case 'categoria':
+            tipoTexto = 'Categoría';
+            contenidoHTML = `
+                <div class="producto-img" onclick="verProductos(${item.id})">
+                    <img src="${item.imagen_url}" alt="${item.nombre}" 
+                        onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+No+Disponible'">
+                </div>
+                <div class="producto-nombre">
+                    <h3>${item.nombre}</h3>
+                </div>
+                <div class="producto-tipo-busqueda" style="padding: 8px; background: #9b59b6; color: white; text-align: center; font-size: 0.8rem; font-weight: bold;">
+                    ${tipoTexto}
+                </div>
+                <div class="${accionesClass}">
+                    <button class="btn-editar" onclick="event.stopPropagation(); editarCategoria(${item.id})">✏️ Editar</button>
+                    <button class="btn-eliminar" onclick="event.stopPropagation(); eliminarCategoria(${item.id})">🗑️ Eliminar</button>
+                </div>
+            `;
+            break;
+            
+        case 'producto':
+            tipoTexto = 'Producto';
+            // Preparar precios
+            const precioNormal = item.precio_normal || 0;
+            const precioDescuento = item.precio_descuento || 0;
+            let preciosHTML = '';
+            
+            if (precioDescuento > 0 && precioDescuento < precioNormal) {
+                const porcentaje = Math.round(((precioNormal - precioDescuento) / precioNormal) * 100);
+                preciosHTML = `
+                    <div class="producto-precios">
+                        <span class="precio-normal">$${precioNormal.toFixed(2)}</span>
+                        <span class="precio-descuento">$${precioDescuento.toFixed(2)}</span>
+                        <span class="badge-descuento">-${porcentaje}%</span>
+                    </div>
+                `;
+            } else if (precioNormal > 0) {
+                preciosHTML = `
+                    <div class="producto-precios">
+                        <span class="solo-precio">$${precioNormal.toFixed(2)}</span>
+                    </div>
+                `;
+            }
+            
+            // Preparar descripción
+            let descripcionTexto = item.descripcion && item.descripcion.trim() !== '' ? 
+                item.descripcion.trim() : 'Sin descripción';
+            let descripcionClass = item.descripcion && item.descripcion.trim() !== '' ? '' : ' class="sin-descripcion"';
+            
+            contenidoHTML = `
+                <div class="producto-img">
+                    <img src="${item.imagen_url}" alt="${item.nombre}" 
+                        onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+No+Disponible'">
+                </div>
+                <div class="producto-nombre">
+                    <h3>${item.nombre}</h3>
+                </div>
+                <div class="producto-tipo-busqueda" style="padding: 8px; background: #3498db; color: white; text-align: center; font-size: 0.8rem; font-weight: bold;">
+                    ${tipoTexto}
+                </div>
+                ${preciosHTML}
+                <div class="producto-descripcion">
+                    <p${descripcionClass}>${descripcionTexto}</p>
+                </div>
+                <div class="${accionesClass}">
+                    <button class="btn-editar" onclick="editarItem(${item.id})">✏️ Editar</button>
+                    <button class="btn-eliminar" onclick="eliminarItem(${item.id})">🗑️ Eliminar</button>
+                </div>
+            `;
+            break;
+    }
+    
+    div.innerHTML = contenidoHTML;
+    return div;
 }
 
 function restaurarVistaAnterior() {
@@ -712,90 +876,8 @@ function crearElementoItem(item) {
     return div;
 }
 
-function renderizarResultadosBusqueda(resultados, termino) {
-    const productosContainer = document.getElementById('productosContainer');
-    productosContainer.innerHTML = '';
-    
-    if (resultados.length === 0) {
-        productosContainer.innerHTML = `
-            <p style="text-align: center; grid-column: 1/-1; color: #000000; font-size: 1.2rem;">
-                No se encontraron productos para "${termino}"
-            </p>
-        `;
-        return;
-    }
-    
-    actualizarTitulo(`Resultados para "${termino}"`);
-    
-    resultados.forEach(item => {
-        const div = crearElementoItemBusqueda(item);
-        productosContainer.appendChild(div);
-    });
-}
-
-function crearElementoItemBusqueda(item) {
-    const div = document.createElement('div');
-    div.className = 'producto';
-    div.setAttribute('data-id', item.id);
-    
-    const accionesClass = sesionActiva ? 'producto-actions visible' : 'producto-actions';
-    
-    // Información de categoría y marca
-    const categoriaNombre = item.categorias?.nombre || 'Categoría desconocida';
-    const marcaNombre = item.categorias?.marcas?.nombre || 'Marca desconocida';
-    
-    // Preparar descripción
-    let descripcionTexto = item.descripcion && item.descripcion.trim() !== '' ? 
-        item.descripcion.trim() : 'Sin descripción';
-    
-    // Preparar precios
-    const precioNormal = item.precio_normal || 0;
-    const precioDescuento = item.precio_descuento || 0;
-    let preciosHTML = '';
-    
-    if (precioDescuento > 0 && precioDescuento < precioNormal) {
-        const porcentaje = Math.round(((precioNormal - precioDescuento) / precioNormal) * 100);
-        preciosHTML = `
-            <div class="producto-precios">
-                <span class="precio-normal">$${precioNormal.toFixed(2)}</span>
-                <span class="precio-descuento">$${precioDescuento.toFixed(2)}</span>
-                <span class="badge-descuento">-${porcentaje}%</span>
-            </div>
-        `;
-    } else if (precioNormal > 0) {
-        preciosHTML = `
-            <div class="producto-precios">
-                <span class="solo-precio">$${precioNormal.toFixed(2)}</span>
-            </div>
-        `;
-    }
-    
-    div.innerHTML = `
-        <div class="producto-img">
-            <img src="${item.imagen_url}" alt="${item.nombre}" 
-                onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+No+Disponible'">
-        </div>
-        <div class="producto-nombre">
-            <h3>${item.nombre}</h3>
-        </div>
-        <div class="producto-info-busqueda" style="padding: 8px; background: #f8f9fa; border-radius: 5px; margin: 5px 0; font-size: 0.8rem; color: #666;">
-            <strong>${marcaNombre}</strong> › ${categoriaNombre}
-        </div>
-        ${preciosHTML}
-        <div class="producto-descripcion">
-            <p>${descripcionTexto}</p>
-        </div>
-        <div class="${accionesClass}">
-            <button class="btn-editar" onclick="editarItem(${item.id})">✏️ Editar</button>
-            <button class="btn-eliminar" onclick="eliminarItem(${item.id})">🗑️ Eliminar</button>
-        </div>
-    `;
-    
-    return div;
-}
-
 // ========================================
-// NAVEGACIÓN
+// NAVEGACIÓN MEJORADA
 // ========================================
 function verCategorias(marcaId) {
     console.log(`🔍 Navegando a categorías de marca ${marcaId}`);
@@ -807,17 +889,34 @@ function verProductos(categoriaId) {
     cargarItems(categoriaId);
 }
 
-function volverACategorias() {
-    console.log('↩️ Volviendo a categorías');
-    if (marcaActual) {
-        cargarCategorias(marcaActual);
-    } else {
-        cargarMarcas();
+function volverAtras() {
+    console.log('↩️ Volviendo atrás');
+    
+    if (resultadosBusqueda) {
+        // Si estamos en búsqueda, restaurar vista anterior
+        restaurarVistaAnterior();
+        return;
+    }
+    
+    // Navegación normal entre niveles
+    switch (nivelActual) {
+        case 'categorias':
+            cargarMarcas();
+            break;
+        case 'productos':
+            if (marcaActual) {
+                cargarCategorias(marcaActual);
+            } else {
+                cargarMarcas();
+            }
+            break;
+        default:
+            cargarMarcas();
     }
 }
 
-function volverAMarcas() {
-    console.log('↩️ Volviendo a marcas');
+function irAlInicio() {
+    console.log('🏠 Yendo al inicio');
     cargarMarcas();
 }
 
@@ -830,31 +929,16 @@ function actualizarTitulo(texto) {
     }
 }
 
-function actualizarBotonesVolver() {
-    console.log('🔄 Actualizando botones volver - Nivel:', nivelActual);
+function actualizarBotonVolver() {
+    console.log('🔄 Actualizando botón volver - Nivel:', nivelActual);
     
-    // Ocultar todos primero
-    btnVolverCategorias.classList.remove('visible');
-    btnVolverMarcas.classList.remove('visible');
-    
-    // Mostrar los necesarios según el nivel
-    switch (nivelActual) {
-        case 'marcas':
-            // En marcas, no mostrar botones volver
-            break;
-        case 'categorias':
-            btnVolverMarcas.classList.add('visible');
-            break;
-        case 'productos':
-            btnVolverCategorias.classList.add('visible');
-            btnVolverMarcas.classList.add('visible');
-            break;
+    // Mostrar botón volver solo si no estamos en el nivel principal de marcas
+    if (nivelActual === 'marcas' && !resultadosBusqueda) {
+        btnVolver.classList.remove('visible');
+    } else {
+        btnVolver.classList.add('visible');
+        btnVolver.textContent = '← Volver';
     }
-    
-    console.log('Botones volver:', {
-        volverCategorias: btnVolverCategorias.classList.contains('visible'),
-        volverMarcas: btnVolverMarcas.classList.contains('visible')
-    });
 }
 
 function actualizarBotonesFlotantes() {
@@ -865,7 +949,7 @@ function actualizarBotonesFlotantes() {
     btnAgregarCategoria.classList.remove('visible');
     btnAgregarItem.classList.remove('visible');
     
-    // Mostrar según nivel y sesión
+    // Mostrar según nivel y sesión (no mostrar durante búsqueda)
     if (sesionActiva && !resultadosBusqueda) {
         switch (nivelActual) {
             case 'marcas':
@@ -880,12 +964,17 @@ function actualizarBotonesFlotantes() {
                 break;
         }
     }
+}
+
+function actualizarVisibilidadHero() {
+    const heroSection = document.getElementById('heroSection');
     
-    console.log('Botones flotantes visibles:', {
-        agregarFlotante: btnAgregarFlotante.classList.contains('visible'),
-        agregarCategoria: btnAgregarCategoria.classList.contains('visible'),
-        agregarItem: btnAgregarItem.classList.contains('visible')
-    });
+    // Mostrar hero solo en el nivel principal de marcas y sin búsqueda activa
+    if (nivelActual === 'marcas' && !resultadosBusqueda) {
+        heroSection.classList.add('mostrar-hero');
+    } else {
+        heroSection.classList.remove('mostrar-hero');
+    }
 }
 
 // ========================================
@@ -1395,10 +1484,7 @@ function debugEstado() {
     console.log('Marca actual:', marcaActual);
     console.log('Categoría actual:', categoriaActual);
     console.log('Resultados búsqueda:', resultadosBusqueda);
-    console.log('Botones volver:', {
-        volverCategorias: document.getElementById('btnVolverCategorias')?.classList.contains('visible'),
-        volverMarcas: document.getElementById('btnVolverMarcas')?.classList.contains('visible')
-    });
+    console.log('Botón volver visible:', document.getElementById('btnVolverCategorias')?.classList.contains('visible'));
     console.log('Botones flotantes:', {
         agregarMarca: document.getElementById('btnAgregarFlotante')?.classList.contains('visible'),
         agregarCategoria: document.getElementById('btnAgregarCategoria')?.classList.contains('visible'),

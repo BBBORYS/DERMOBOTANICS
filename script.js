@@ -128,6 +128,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     console.log('🚀 Aplicación inicializada correctamente');
     debugEstado();
+
+    btnAgregarFlotante.addEventListener('click', abrirModalAgregar);
 });
 
 // ========================================

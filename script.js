@@ -200,7 +200,7 @@ async function eliminarImagen(url) {
 
 // ========================================
 // FUNCIONES SUPABASE - MARCAS
-// ========================================
+// ==============================================
 async function cargarMarcas() {
     try {
         console.log('📦 Cargando marcas...');
